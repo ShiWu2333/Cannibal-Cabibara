@@ -4,15 +4,13 @@ using UnityEngine;
 
 public class InputHandler : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+
+    public Vector2 InputVector { get; private set; }
+
+    public Vector3 MousePosition { get; private set; }
+
+    private void Update()
     {
-        
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
