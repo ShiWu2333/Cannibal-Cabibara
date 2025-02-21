@@ -71,6 +71,13 @@ public class PlayerMovement : MonoBehaviour
                 carriedItem = item;
                 item.isPickedUp = true;
                 PickUpItem(item); // 捡起道具
+
+                // 通知物体取消高亮
+                Item highlightItem = item.GetComponent<Item>();
+                if (highlightItem != null)
+                {
+                    highlightItem.OnPickedUp();
+                }
             }
         }
         else
