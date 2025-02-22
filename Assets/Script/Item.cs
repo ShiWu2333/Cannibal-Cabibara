@@ -10,27 +10,27 @@ public class Item : MonoBehaviour
     public bool canBePickedUp = true; // 是否可以被拾取
 
     // 高亮选择部分的参数
-    public float fadeDuration = 0.5f; // 渐变持续时间
-    public Color highlightColor = Color.white; // 高亮颜色
-    public Color selectedColor = Color.yellow; // 选中颜色
-    public float highlightDistance = 5f; // 高亮距离
-    public float selectDistance = 2f; // 选中距离
-    public float highLightWith = 2f; // 高亮宽度
-    public float selectedWith = 5f; // 选中宽度
+    [SerializeField] private float fadeDuration = 0.5f; // 渐变持续时间
+    [SerializeField] private Color highlightColor = Color.blue; // 高亮颜色
+    [SerializeField] private Color selectedColor = Color.yellow; // 选中颜色
+    [SerializeField] private float highlightDistance = 5f; // 高亮距离
+    [SerializeField] private float selectDistance = 0.5f; // 选中距离
+    [SerializeField] private float highLightWith = 2f; // 高亮宽度
+    [SerializeField] private float selectedWith = 5f; // 选中宽度
 
-    //高亮呼吸
-    public float breathSpeed = 1f; // 呼吸速度
-    public float minAlpha = 0.2f; // 最小宽度
-    public float maxAlpha = 0.8f; // 最大宽度
+    // 高亮呼吸
+    [SerializeField] private float breathSpeed = 1f; // 呼吸速度
+    [SerializeField] private float minAlpha = 0.2f; // 最小宽度
+    [SerializeField] private float maxAlpha = 0.8f; // 最大宽度
 
-    [SerializeField] Outline outline;
+    [SerializeField] private Outline outline;
     private bool isHighlighted = false; // 是否高亮
     private bool isSelected = false; // 是否选中
     private GameObject player; // 缓存玩家对象
 
     private void Start()
     {
-        if (outline != null) 
+        if (outline != null)
         {
             outline.OutlineMode = Outline.Mode.OutlineVisible;
             outline.OutlineColor = highlightColor; // 设置初始颜色
@@ -41,11 +41,6 @@ public class Item : MonoBehaviour
         {
             Debug.LogError("Failed to find outline");
         }
-        outline.OutlineMode = Outline.Mode.OutlineVisible;
-        outline.OutlineColor = highlightColor; // 设置初始颜色
-        outline.OutlineWidth = highLightWith; // 设置初始宽度
-        outline.enabled = false; // 初始禁用外发光
-
 
         player = GameObject.FindGameObjectWithTag("Player");
         if (player == null)
@@ -70,11 +65,10 @@ public class Item : MonoBehaviour
             if (!isHighlighted)
             {
                 Highlight(); // 高亮物体
-
             }
 
             // 判断是否选中
-            if (distance <= selectDistance && IsRaycastHit())
+            if (IsInSelectionBox())
             {
                 if (!isSelected)
                 {
@@ -109,7 +103,6 @@ public class Item : MonoBehaviour
                     outline.OutlineColor = currentColor;
                 }
             }
-
         }
         else
         {
@@ -118,6 +111,29 @@ public class Item : MonoBehaviour
                 RemoveHighlight(); // 取消高亮
             }
         }
+    }
+
+    private bool IsInSelectionBox()
+    {
+        if (player == null) return false;
+
+        // 获取 PlayerMovement 脚本
+        PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+        if (playerMovement == null) return false;
+
+        // 计算立方体中心点（与 PlayerMovement 一致）
+        Vector3 boxCenter = player.transform.position + player.transform.forward * 0.5f;
+
+        // 检测物体是否在立方体区域内
+        Collider[] hitColliders = Physics.OverlapBox(boxCenter, new Vector3(playerMovement.selectDistance, playerMovement.selectDistance, 0.5f), player.transform.rotation);
+        foreach (var hitCollider in hitColliders)
+        {
+            if (hitCollider.gameObject == gameObject)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void Select()
@@ -180,35 +196,10 @@ public class Item : MonoBehaviour
         }
     }
 
-    private bool IsRaycastHit()
-    {
-        if (player == null)
-        {
-            Debug.Log("Player not found!");
-            return false;
-        }
-
-        RaycastHit hit;
-        if (Physics.Raycast(player.transform.position, player.transform.forward, out hit, selectDistance))
-        {
-            Debug.Log("Raycast hit: " + hit.collider.name);
-            if (hit.collider.gameObject == gameObject)
-            {
-                return true;
-            }
-        }
-        else
-        {
-            Debug.Log("Raycast did not hit anything.");
-        }
-        return false;
-    }
-
     public void OnPickedUp()
     {
         RemoveHighlight();
     }
-
 
     private IEnumerator FadeOutline(bool fadeIn)
     {
@@ -241,4 +232,23 @@ public class Item : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmosSelected()
+    {
+        // 绘制高亮范围
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, highlightDistance);
+
+        // 绘制选中范围（与 PlayerMovement 一致）
+        if (player != null)
+        {
+            PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
+            if (playerMovement != null)
+            {
+                Vector3 boxCenter = player.transform.position + player.transform.forward * 0.5f;
+                Gizmos.color = Color.yellow;
+                Gizmos.matrix = Matrix4x4.TRS(boxCenter, player.transform.rotation, Vector3.one);
+                Gizmos.DrawWireCube(Vector3.zero, new Vector3(playerMovement.selectDistance * 2, playerMovement.selectDistance * 2, 1f)); // 长 1f 的立方体
+            }
+        }
+    }
 }

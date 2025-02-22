@@ -1,13 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+
 public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float rotationSpeed;
-    public float selectDistance = 2f;
+    public float selectDistance = 0.5f; // 选择范围的半边长
     private Vector2 move;
 
-    [SerializeField] Transform holdPosition;
+    [SerializeField] private Transform holdPosition;
     private Item carriedItem;
 
     public ItemInspection itemInspection; // 检视功能脚本
@@ -19,14 +20,13 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        
     }
 
     private void Update()
     {
         movePlayer();
         CheckInteractInput();
-        
+
         // 按下 Q 键检视物品
         if (Input.GetKeyDown(KeyCode.Q))
         {
@@ -36,15 +36,12 @@ public class PlayerMovement : MonoBehaviour
 
     private void InspectSelectedItem()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, selectDistance))
+        // 使用立方体区域检测
+        Item item = DetectItemInBox();
+        if (item != null)
         {
-            Item item = hit.collider.GetComponent<Item>();
-            if (item != null)
-            {
-                itemInspection.SetItemModel(item.gameObject);
-                itemInspection.ToggleInspection();
-            }
+            itemInspection.SetItemModel(item.gameObject);
+            itemInspection.ToggleInspection();
         }
     }
 
@@ -62,7 +59,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         transform.Translate(movement * speed * Time.deltaTime, Space.World);
-
     }
 
     private void CheckInteractInput()
@@ -83,30 +79,39 @@ public class PlayerMovement : MonoBehaviour
 
     private void TryPickUpItem()
     {
-        // 使用射线检测前方的道具
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, selectDistance))
+        // 使用立方体区域检测
+        Item item = DetectItemInBox();
+        if (item != null && !item.isPickedUp)
         {
-            Debug.Log("Raycast hit: " + hit.collider.name); // 添加调试日志
-            Item item = hit.collider.GetComponent<Item>();
-            if (item != null && !item.isPickedUp)
-            {
-                carriedItem = item;
-                item.isPickedUp = true;
-                PickUpItem(item); // 捡起道具
+            carriedItem = item;
+            item.isPickedUp = true;
+            PickUpItem(item); // 捡起道具
 
-                // 通知物体取消高亮
-                Item highlightItem = item.GetComponent<Item>();
-                if (highlightItem != null)
-                {
-                    highlightItem.OnPickedUp();
-                }
+            // 通知物体取消高亮
+            Item highlightItem = item.GetComponent<Item>();
+            if (highlightItem != null)
+            {
+                highlightItem.OnPickedUp();
             }
         }
-        else
+    }
+
+    private Item DetectItemInBox()
+    {
+        // 定义立方体中心的偏移（玩家前方 0.5f 处）
+        Vector3 boxCenter = transform.position + transform.forward * 0.5f;
+
+        // 检测立方体区域内的物品
+        Collider[] hitColliders = Physics.OverlapBox(boxCenter, new Vector3(selectDistance, selectDistance, 0.5f), transform.rotation);
+        foreach (var hitCollider in hitColliders)
         {
-            Debug.Log("Raycast did not hit anything."); // 添加调试日志
+            Item item = hitCollider.GetComponent<Item>();
+            if (item != null)
+            {
+                return item; // 返回第一个检测到的物品
+            }
         }
+        return null; // 如果没有检测到物品，返回 null
     }
 
     private void PickUpItem(Item item)
@@ -142,5 +147,14 @@ public class PlayerMovement : MonoBehaviour
 
             carriedItem = null; // 清空当前拿起的道具
         }
+    }
+
+    // 在场景中绘制立方体区域以便调试
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 boxCenter = transform.position + transform.forward * 0.5f; // 与代码中的偏移一致
+        Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one);
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(selectDistance * 2, selectDistance * 2, 1f)); // 长 1f 的立方体
     }
 }

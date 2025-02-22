@@ -887,6 +887,31 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2009380412694873297, guid: 4125f12a89ef50345a5467fdf0a1afbf,
+        type: 3}
+      propertyPath: m_AngularDrag
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: 4125f12a89ef50345a5467fdf0a1afbf,
+        type: 3}
+      propertyPath: selectDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: 4125f12a89ef50345a5467fdf0a1afbf,
+        type: 3}
+      propertyPath: highlightColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: 4125f12a89ef50345a5467fdf0a1afbf,
+        type: 3}
+      propertyPath: highlightColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: 4125f12a89ef50345a5467fdf0a1afbf,
+        type: 3}
+      propertyPath: highlightColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7525207710636384509, guid: 4125f12a89ef50345a5467fdf0a1afbf,
         type: 3}
       propertyPath: m_Name
@@ -975,6 +1000,11 @@ PrefabInstance:
       propertyPath: itemInspection
       value: 
       objectReference: {fileID: 2115683549}
+    - target: {fileID: 2318695782051604603, guid: d46cbf8022674f449a5b6e63f45b7179,
+        type: 3}
+      propertyPath: selectDistance
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 2318695782051604603, guid: d46cbf8022674f449a5b6e63f45b7179,
         type: 3}
       propertyPath: itemLayer.m_Bits
@@ -1272,6 +1302,31 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2009380412694873297, guid: e5defd07587530a49989bf20c0325fee,
+        type: 3}
+      propertyPath: m_AngularDrag
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: e5defd07587530a49989bf20c0325fee,
+        type: 3}
+      propertyPath: selectDistance
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: e5defd07587530a49989bf20c0325fee,
+        type: 3}
+      propertyPath: highlightColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: e5defd07587530a49989bf20c0325fee,
+        type: 3}
+      propertyPath: highlightColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4061945978860475806, guid: e5defd07587530a49989bf20c0325fee,
+        type: 3}
+      propertyPath: highlightColor.r
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7525207710636384509, guid: e5defd07587530a49989bf20c0325fee,
         type: 3}
       propertyPath: m_Name
