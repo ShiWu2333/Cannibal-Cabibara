@@ -11,7 +11,7 @@ public class Item : MonoBehaviour
 
     // 高亮选择部分的参数
     public float fadeDuration = 0.5f; // 渐变持续时间
-    public Color highlightColor = Color.blue; // 高亮颜色
+    public Color highlightColor = Color.white; // 高亮颜色
     public Color selectedColor = Color.yellow; // 选中颜色
     public float highlightDistance = 5f; // 高亮距离
     public float selectDistance = 2f; // 选中距离

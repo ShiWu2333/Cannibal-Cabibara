@@ -4,10 +4,13 @@ public class PlayerMovement : MonoBehaviour
 {
     public float speed;
     public float rotationSpeed;
+    public float selectDistance = 2f;
     private Vector2 move;
 
     [SerializeField] Transform holdPosition;
     private Item carriedItem;
+
+    public ItemInspection itemInspection; // 检视功能脚本
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -23,6 +26,26 @@ public class PlayerMovement : MonoBehaviour
     {
         movePlayer();
         CheckInteractInput();
+        
+        // 按下 Q 键检视物品
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            InspectSelectedItem();
+        }
+    }
+
+    private void InspectSelectedItem()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, selectDistance))
+        {
+            Item item = hit.collider.GetComponent<Item>();
+            if (item != null)
+            {
+                itemInspection.SetItemModel(item.gameObject);
+                itemInspection.ToggleInspection();
+            }
+        }
     }
 
     private void movePlayer()
@@ -62,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // 使用射线检测前方的道具
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, transform.forward, out hit, 2f))
+        if (Physics.Raycast(transform.position, transform.forward, out hit, selectDistance))
         {
             Debug.Log("Raycast hit: " + hit.collider.name); // 添加调试日志
             Item item = hit.collider.GetComponent<Item>();
