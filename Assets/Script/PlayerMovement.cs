@@ -42,6 +42,7 @@ public class PlayerMovement : MonoBehaviour
         {
             itemInspection.SetItemModel(item.gameObject);
             itemInspection.ToggleInspection();
+            BackPackManager.Instance.AddItem(item);
         }
     }
 
