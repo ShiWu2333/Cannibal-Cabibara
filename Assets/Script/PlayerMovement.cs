@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 move;
 
     [SerializeField] private Transform holdPosition;
+    [SerializeField] private BackPackUIManager backPackUIManager;
     private Item carriedItem;
 
     public ItemInspection itemInspection; // 检视功能脚本
@@ -31,6 +32,15 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             InspectSelectedItem();
+        }
+
+        // 检测 B 键按下，切换背包UI显示
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (backPackUIManager != null)
+            {
+                backPackUIManager.ToggleBackPackUI();
+            }
         }
     }
 
