@@ -4,22 +4,27 @@ using System.Collections;
 
 public class SkyChange : MonoBehaviour
 {
-    //public float totalDayTime = 13f;  
     private float currentTime = 0f;    
     public Material daySkybox;         // 白天 Skybox
-    public Material duskSkybox;        // 黄昏 Skybox
-    public Material nightSkybox;       // 夜晚 Skybox
     public Light sunLight;             // 太阳光
 
     public Image blackScreen;
     public Image capybaraSleepImage;   // 卡皮巴拉睡觉的图片
     private bool isNightSequenceStarted = false;
 
+    public Image calendarImage;  //  只用 1 个 Image，改 Sprite
+    public Sprite[] calendarSpritesNormal; //  7 张无划线图片
+    public Sprite[] calendarSpritesMarked; // 7 张划掉的图片
+
+    private int currentDay = 0;
+
+
     void Start()
     {
         currentTime = 0f; 
         RenderSettings.skybox = daySkybox; // 初始为白天
         capybaraSleepImage.gameObject.SetActive(false);
+        calendarImage.gameObject.SetActive(false);
     }
 
     void Update()
@@ -33,28 +38,13 @@ public class SkyChange : MonoBehaviour
             sunLight.intensity = 1.0f;
         }
 
-        else if (currentTime >= 6f && currentTime < 10f)  // 6-10秒 = 黄昏
+        else if (currentTime >= 6f && currentTime < 13f)
         {
-            float blendFactor = (currentTime - 6f) / 4f;
-
-            Material tempSkybox = new Material(duskSkybox);
-            tempSkybox.Lerp(daySkybox, duskSkybox, blendFactor);
-            RenderSettings.skybox = tempSkybox; 
-
-            sunLight.intensity = Mathf.Lerp(1.0f, 0.2f, blendFactor);
+            float blendFactor = (currentTime - 6f) / 7f;
+            sunLight.intensity = Mathf.Lerp(1.0f, 0f, blendFactor);
+            RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, 0.3f, blendFactor);
         }
-        else if (currentTime >= 10f && currentTime < 13f)  // 10-13秒 = 黑夜
-        {
-            float blendFactor = (currentTime - 10f) / 3f;
 
-            Material tempSkybox = new Material(nightSkybox);
-            tempSkybox.Lerp(duskSkybox, nightSkybox, blendFactor);
-            tempSkybox.SetFloat("_Exposure", Mathf.Lerp(1.0f, 0.3f, blendFactor));
-            RenderSettings.skybox = tempSkybox;
-
-            sunLight.intensity = Mathf.Lerp(0.2f, 0f, blendFactor);
-            RenderSettings.ambientIntensity = Mathf.Lerp(0.5f, 0.3f, blendFactor);
-        }
         else if (currentTime >= 13f && !isNightSequenceStarted)
         {
             StartCoroutine(NightSequence());
@@ -90,10 +80,47 @@ public class SkyChange : MonoBehaviour
 
     void NewDay()
     {
-        Debug.Log(" 新的一天开始！");
-        currentTime = 0f; // 时间归零
-        RenderSettings.skybox = daySkybox; // 重新设置白天
-        sunLight.intensity = 1.0f;
-        isNightSequenceStarted = false;
+        currentDay++;
+
+        // 如果是第 7 天（索引 6），根据数值触发结局（还未设定）
+        if (currentDay == 7)
+        {
+            Debug.Log("根据数值触发结局");
+            //TriggerGameEnding();
+        }
+        else
+        {
+            Debug.Log(" 新的一天开始！");
+            currentTime = 0f; // 时间归零
+            RenderSettings.skybox = daySkybox; // 重新设置白天
+            sunLight.intensity = 1.0f;
+            isNightSequenceStarted = false;
+
+            StartCoroutine(ShowCalendar());
+        }
+    }
+    IEnumerator ShowCalendar()
+    {
+        yield return new WaitForSeconds(3f); // 等待 3 秒后显示日历
+
+        // ✅ 显示 `calendarImageNormal`（当天无划线的日历）
+        calendarImage.sprite = calendarSpritesNormal[currentDay];
+        calendarImage.gameObject.SetActive(true);
+        calendarImage.canvasRenderer.SetAlpha(0f);
+        calendarImage.CrossFadeAlpha(1f, 1f, false);
+
+
+        yield return new WaitForSeconds(2f); // 2 秒后换成划掉的日历
+
+        // ✅ 切换到 `calendarImageMarked`
+        calendarImage.sprite = calendarSpritesMarked[currentDay];
+
+        yield return new WaitForSeconds(2f);
+        calendarImage.CrossFadeAlpha(0f, 1f, false);
+        yield return new WaitForSeconds(1f); // 显示 3 秒后隐藏
+        
+
+        // ✅ 隐藏日历
+        calendarImage.gameObject.SetActive(false);
     }
 }
