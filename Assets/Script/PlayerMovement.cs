@@ -32,6 +32,7 @@ public class PlayerMovement : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Q))
         {
             InspectSelectedItem();
+            Debug.Log("Q has been pressed");
         }
 
         // 检测 B 键按下，切换背包UI显示
