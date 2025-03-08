@@ -3,18 +3,16 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5f;
-    public float rotationSpeed = 500f;
+    public float speed;
+    public float rotationSpeed;
     public float selectDistance = 0.5f; // 选择范围的半边长
     private Vector2 move;
-    public bool pauseInput;
 
     [SerializeField] private Transform holdPosition;
     [SerializeField] private BackPackUIManager backPackUIManager;
     private Item carriedItem;
 
     public ItemInspection itemInspection; // 检视功能脚本
-    private Rigidbody rb; // 添加 Rigidbody
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -23,32 +21,26 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>(); // 获取 Rigidbody 组件
-        rb.freezeRotation = true; // 防止角色旋转
-        pauseInput = false;
     }
 
     private void Update()
     {
-        if (!pauseInput)
+        movePlayer();
+        CheckInteractInput();
+
+        // 按下 Q 键检视物品
+        if (Input.GetKeyDown(KeyCode.Q))
         {
-            movePlayer();
-            CheckInteractInput();
+            InspectSelectedItem();
+            Debug.Log("Q has been pressed");
+        }
 
-            // 按下 Q 键检视物品
-            if (Input.GetKeyDown(KeyCode.Q))
+        // 检测 B 键按下，切换背包UI显示
+        if (Input.GetKeyDown(KeyCode.B))
+        {
+            if (backPackUIManager != null)
             {
-                InspectSelectedItem();
-                Debug.Log("Q has been pressed");
-            }
-
-            // 检测 B 键按下，切换背包UI显示
-            if (Input.GetKeyDown(KeyCode.B))
-            {
-                if (backPackUIManager != null)
-                {
-                    backPackUIManager.ToggleBackPackUI();
-                }
+                backPackUIManager.ToggleBackPackUI();
             }
         }
     }
@@ -67,7 +59,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void movePlayer()
     {
-        Vector3 movement = new Vector3(move.x, 0f, move.y).normalized;
+        Vector3 movement = new Vector3(move.x, 0f, move.y);
 
         if (movement.magnitude > 0.1f)
         {
@@ -78,9 +70,7 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        //  修改为使用 Rigidbody 移动，确保物理碰撞生效
-        Vector3 newPosition = rb.position + movement * speed * Time.deltaTime;
-        rb.MovePosition(newPosition);
+        transform.Translate(movement * speed * Time.deltaTime, Space.World);
     }
 
     private void CheckInteractInput()
@@ -178,15 +168,5 @@ public class PlayerMovement : MonoBehaviour
         Vector3 boxCenter = transform.position + transform.forward * 0.5f; // 与代码中的偏移一致
         Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one);
         Gizmos.DrawWireCube(Vector3.zero, new Vector3(selectDistance * 2, selectDistance * 2, 1f)); // 长 1f 的立方体
-    }
-
-    public void PauseInput()
-    {
-        pauseInput = true;
-    }
-
-    public void ResumeInput()
-    {
-        pauseInput = false;
     }
 }
