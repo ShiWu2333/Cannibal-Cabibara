@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,25 +6,41 @@ using System.Linq;
 [System.Serializable]
 public class ItemIDToImage
 {
-    public int itemID;      // ¸ÃUI¶ÔÓ¦µÄµÀ¾ßID
-    public Image imageSlot; // ÓÃÀ´ÏÔÊ¾»ò±äÉ«µÄUI Image
+    public int itemID;      // è¯¥ UI å¯¹åº”çš„é“å…· ID
+    public Image imageSlot; // UI Imageï¼ˆæ˜¾ç¤ºé“å…·ï¼‰
+    
+    public Sprite defaultSprite;  //  æœªæ”¶é›†æ—¶çš„é»‘ç°å‰ªå½±
+    public Sprite collectedSprite; //  æ”¶é›†åæ˜¾ç¤ºçš„å½©è‰²é“å…·
 }
 
 [System.Serializable]
 public class MemoryIDToImage
 {
-    public int memoryID;    // »ØÒäÆ¬¶ÎID£¨¶ÔÓ¦ BackPackManager.memoryFragments ÖĞµÄ memoryId£©
-    public Image imageSlot; // ÓÃÀ´ÏÔÊ¾»ò±äÉ«µÄUI Image
+    public int memoryID;      // å›å¿†ç‰‡æ®µ ID
+    public Button memoryButton;
+    public Image imageSlot;   // UI Imageï¼ˆç”¨äºæ˜¾ç¤ºå›å¿†ç‰‡æ®µï¼‰
+    public Sprite unlockedSprite; // âœ… è§£é”åæ˜¾ç¤ºçš„ Spriteï¼ˆå›å¿†ç‰‡æ®µå›¾ç‰‡ï¼‰
+    public GameObject lockImage;  // âŒ æœªè§£é”æ—¶çš„â€œé”â€å›¾æ ‡
 }
 
 public class BackPackUIManager : MonoBehaviour
 {
     [Header("UI References")]
-    public GameObject backPackPanel; // ±³°üÕûÌåÃæ°å£¬·½±ãÇĞ»»ÏÔÊ¾
-    [Tooltip("ÊÖ¶¯Ö¸¶¨Ã¿¸öµÀ¾ßID¶ÔÓ¦µÄUI Image¡£")]
-    public List<ItemIDToImage> itemIDToImages; // ´æ´¢¡°µÀ¾ßID -> UI¸ñ×Ó¡±µÄ¶ÔÓ¦¹ØÏµ
-    [Tooltip("ÊÖ¶¯Ö¸¶¨Ã¿¸ö»ØÒäÆ¬¶ÎID¶ÔÓ¦µÄUI Image¡£")]
-    public List<MemoryIDToImage> memoryIDToImages; // ´æ´¢¡°»ØÒäÆ¬¶ÎID -> UI¸ñ×Ó¡±µÄ¶ÔÓ¦¹ØÏµ
+    public GameObject backPackPanel; // èƒŒåŒ…æ•´ä½“é¢æ¿ï¼Œæ–¹ä¾¿åˆ‡æ¢æ˜¾ç¤º
+    public GameObject backpackIcon; //èƒŒåŒ…icon
+    public Button backButton;
+    public Button prevPageButton; // ä¸Šä¸€é¡µæŒ‰é’®
+    public Button nextPageButton; // ä¸‹ä¸€é¡µæŒ‰é’®
+
+    [Tooltip("æ‰‹åŠ¨æŒ‡å®šæ¯ä¸ªé“å…·IDå¯¹åº”çš„UI Imageã€‚")]
+    public List<ItemIDToImage> itemIDToImages; // å­˜å‚¨â€œé“å…·ID -> UIæ ¼å­â€çš„å¯¹åº”å…³ç³»
+    [Tooltip("æ‰‹åŠ¨æŒ‡å®šæ¯ä¸ªå›å¿†ç‰‡æ®µIDå¯¹åº”çš„UI Imageã€‚")]
+    public List<MemoryIDToImage> memoryIDToImages; // å­˜å‚¨â€œå›å¿†ç‰‡æ®µID -> UIæ ¼å­â€çš„å¯¹åº”å…³ç³»
+
+    [Header("ç¿»é¡µç³»ç»Ÿ")]
+    public int memoriesPerPage = 3; // æ¯é¡µæ˜¾ç¤º 3 ä¸ªè®°å¿†ç¢ç‰‡
+    private int currentPage = 1; // å½“å‰é¡µç 
+    private int totalPages = 2; // æ€»é¡µæ•°
 
 
 
@@ -43,65 +59,152 @@ public class BackPackUIManager : MonoBehaviour
 
     private void Start()
     {
+        backButton.onClick.AddListener(ToggleBackPackUI);
+        prevPageButton.onClick.AddListener(() => ChangePage(-1));
+        nextPageButton.onClick.AddListener(() => ChangePage(1));
+
         if (BackPackManager.Instance != null)
         {
             BackPackManager.Instance.OnBackPackChanged += UpdateBackPackUI;
-            Debug.Log("BackPackUIManager ¶©ÔÄÁË OnBackPackChanged ÊÂ¼ş");
         }
-        else
+
+        foreach (var memoryMapping in memoryIDToImages)
         {
-            Debug.Log("BackPackUManager is not found");
+            if (memoryMapping.memoryButton != null)
+            {
+                memoryMapping.memoryButton.gameObject.SetActive(true);
+                int memoryId = memoryMapping.memoryID;
+                memoryMapping.memoryButton.onClick.AddListener(() => PlayMemory(memoryId));
+            }
         }
-        // Æô¶¯Ê±Òş²Ø²Ëµ¥
+
         backPackPanel.SetActive(false);
-        // Æô¶¯Ê±¸üĞÂÒ»´Î UI
+        backpackIcon.SetActive(true);
+        UpdateBackPackUI();
+    }
+
+    void PlayMemory(int memoryId)
+    {
+        Debug.Log("æ’­æ”¾å›å¿†ç‰‡æ®µ: " + memoryId);
+        CutSceneManager.Instance.PlayMemoryVideo(memoryId);
+    }
+
+    /// <summary>
+    /// åˆ‡æ¢åˆ°ä¸Šä¸€é¡µ / ä¸‹ä¸€é¡µ
+    /// </summary>
+    private void ChangePage(int direction)
+    {
+        currentPage += direction;
+        currentPage = Mathf.Clamp(currentPage, 1, 2);
         UpdateBackPackUI();
     }
 
     /// <summary>
-    /// ¸ù¾İ BackPackManager ÖĞÊÕ¼¯µÄµÀ¾ßÒÔ¼°»ØÒäÆ¬¶Î½âËø×´Ì¬£¬¸üĞÂ UI ÏÔÊ¾
+    /// æ ¹æ® BackPackManager ä¸­æ”¶é›†çš„é“å…·ä»¥åŠå›å¿†ç‰‡æ®µè§£é”çŠ¶æ€ï¼Œæ›´æ–° UI æ˜¾ç¤º
     /// </summary>
     public void UpdateBackPackUI()
     {
-        // Èç¹ûÃ»ÓĞ±³°ü¹ÜÀíÆ÷£¬Ö±½Ó·µ»Ø
         if (BackPackManager.Instance == null) return;
 
-        // 1. ¸üĞÂµÀ¾ß²¿·Ö£ºÏÈ½«ËùÓĞµÀ¾ß UI ÖØÖÃÎª»ÒÉ«£¨Î´ÊÕ¼¯£©
+        // è®¡ç®—å½“å‰é¡µçš„èµ·å§‹ç´¢å¼•
+        int startIdx = (currentPage - 1) * memoriesPerPage;
+        int endIdx = Mathf.Min(startIdx + memoriesPerPage, memoryIDToImages.Count);
+
+        // 1ï¸âƒ£ é‡ç½®æ‰€æœ‰é“å…·ä¸ºé»˜è®¤ï¼ˆæœªæ”¶é›†çŠ¶æ€ï¼‰
         foreach (var mapping in itemIDToImages)
         {
-            if (mapping.imageSlot != null)
-                mapping.imageSlot.color = Color.gray;
+            if (mapping.imageSlot != null && mapping.defaultSprite != null)
+            {
+                mapping.imageSlot.sprite = mapping.defaultSprite;  //  æ˜¾ç¤ºé»‘ç°å‰ªå½±
+            }
         }
 
-        // ÔÙ±éÀúÒÑÊÕ¼¯µÄµÀ¾ß£¬½«¶ÔÓ¦µÄ UI ±ä³ÉÂÌÉ«
+        // 2ï¸âƒ£ éå†å·²æ”¶é›†çš„é“å…·ï¼Œå°†å¯¹åº”çš„ UI åˆ‡æ¢ä¸ºå½©è‰²å®ç‰©
         var collectedItems = BackPackManager.Instance.GetCollectedItems();
         foreach (var item in collectedItems)
         {
             var mapping = itemIDToImages.FirstOrDefault(m => m.itemID == item.itemID);
-            if (mapping != null && mapping.imageSlot != null)
+            if (mapping != null && mapping.imageSlot != null && mapping.collectedSprite != null)
             {
-                mapping.imageSlot.color = Color.green;
+                mapping.imageSlot.sprite = mapping.collectedSprite;  //  æ˜¾ç¤ºå½©è‰²é“å…·
             }
         }
 
-        // 2. ¸üĞÂ»ØÒäÆ¬¶Î²¿·Ö£º½«ËùÓĞÓ³ÉäµÄ UI ¸ù¾İÊÇ·ñ½âËøÉèÖÃÑÕÉ«
-        foreach (var memoryMapping in memoryIDToImages)
+        // 3ï¸âƒ£ æ›´æ–°å›å¿†ç‰‡æ®µ UIï¼ˆå’Œé“å…·é€»è¾‘ä¸€æ ·ï¼‰
+        for (int i = 0; i < memoryIDToImages.Count; i++)
         {
-            if (memoryMapping.imageSlot != null)
+            var memoryMapping = memoryIDToImages[i];
+
+            if (i >= startIdx && i < endIdx)
             {
-                // µ÷ÓÃ BackPackManager µÄ IsMemoryFragmentUnlocked ÅĞ¶ÏÖ¸¶¨»ØÒäÆ¬¶ÎÊÇ·ñ½âËø
+                // âœ… è¿™ä¸ªå›å¿†ç¢ç‰‡å±äºå½“å‰é¡µï¼Œæ˜¾ç¤ºå®ƒ
+                memoryMapping.imageSlot.gameObject.SetActive(true);
+                memoryMapping.memoryButton.gameObject.SetActive(true);
+
                 bool unlocked = BackPackManager.Instance.IsMemoryFragmentUnlocked(memoryMapping.memoryID);
-                memoryMapping.imageSlot.color = unlocked ? Color.green : Color.gray;
+                Color imageColor = memoryMapping.imageSlot.color;
+
+
+                if (unlocked)
+                {
+                    // âœ… å¦‚æœå·²è§£é”ï¼Œæ˜¾ç¤ºå›å¿†ç¢ç‰‡å›¾ç‰‡ï¼Œé”æ¶ˆå¤±ï¼Œå¹¶å¯ç”¨æŒ‰é’®
+                    if (memoryMapping.unlockedSprite != null)
+                    {
+                        memoryMapping.imageSlot.sprite = memoryMapping.unlockedSprite;
+                        Debug.Log("æˆåŠŸæ›´æ–°å›å¿†ç‰‡æ®µå›¾ç‰‡: " + memoryMapping.memoryID);
+                    }
+                    imageColor.a = 1;  // **è®©å›¾ç‰‡å®Œå…¨æ˜¾ç¤º * *
+                    memoryMapping.memoryButton.interactable = true;
+                    memoryMapping.lockImage.SetActive(false);
+
+                    // ç¡®ä¿åªåœ¨æŒ‰é’®è§£é”æ—¶æ‰æ·»åŠ äº‹ä»¶ï¼Œé¿å…é‡å¤ç»‘å®š
+                    memoryMapping.memoryButton.onClick.RemoveAllListeners();
+                    int memoryId = memoryMapping.memoryID;
+                    memoryMapping.memoryButton.onClick.AddListener(() => PlayMemory(memoryId));
+                }
+                else
+                {
+                    // âŒ æœªè§£é”ï¼šä¸æ˜¾ç¤ºå›¾ç‰‡ï¼Œé”å‡ºç°ï¼Œç¦ç”¨æŒ‰é’®
+                    memoryMapping.imageSlot.sprite = null;
+                    memoryMapping.memoryButton.interactable = false;
+                    memoryMapping.lockImage.SetActive(true);
+                    imageColor.a = 0; // **è®©å›¾ç‰‡å®Œå…¨é€æ˜**
+                }
+                // **å½»åº•ç§»é™¤ onClick äº‹ä»¶ï¼Œé˜²æ­¢è¯¯è§¦**
+                memoryMapping.memoryButton.onClick.RemoveAllListeners();   
+                memoryMapping.imageSlot.color = imageColor;
+
+                if (unlocked)
+                {
+                    int memoryId = memoryMapping.memoryID;
+                    memoryMapping.memoryButton.onClick.AddListener(() => PlayMemory(memoryId));
+                }
+            }
+            else
+            {
+                // âŒ è¿™ä¸ªå›å¿†ç¢ç‰‡ä¸åœ¨å½“å‰é¡µï¼Œéšè—å®ƒ
+                memoryMapping.imageSlot.gameObject.SetActive(false);
+                memoryMapping.memoryButton.gameObject.SetActive(false);
             }
         }
+
+        //  æ›´æ–°ç¿»é¡µæŒ‰é’®çŠ¶æ€**
+        prevPageButton.interactable = (currentPage > 1);
+        nextPageButton.interactable = (currentPage < totalPages);
     }
+        
+    
+
 
     /// <summary>
-    /// ÇĞ»»±³°ü UI ÏÔÊ¾»òÒş²Ø
+    /// åˆ‡æ¢èƒŒåŒ… UI æ˜¾ç¤ºæˆ–éšè—
     /// </summary>
     public void ToggleBackPackUI()
     {
         bool isActive = backPackPanel.activeSelf;
         backPackPanel.SetActive(!isActive);
+        backpackIcon.SetActive(isActive);
+
     }
 }
+

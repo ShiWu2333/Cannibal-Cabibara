@@ -100,6 +100,16 @@ public class ItemInspection : MonoBehaviour
             Destroy(inspectedModel);
         }
 
+        if (currentItemModel != null)
+        {
+            Item item = currentItemModel.GetComponent<Item>();
+            if (item != null)
+            {
+                item.Deselect(); // 取消选中
+                item.RemoveHighlight(); // 取消高亮，让 Update() 重新检测
+            }
+        }
+
         isInspecting = false;
     }
 
@@ -146,6 +156,9 @@ public class ItemInspection : MonoBehaviour
     // 设置当前选中的物品模型
     public void SetItemModel(GameObject itemModel)
     {
-        currentItemModel = itemModel;
+        if (itemModel != null)
+        {
+            currentItemModel = itemModel; // 只在有物品时更新
+        }
     }
 }

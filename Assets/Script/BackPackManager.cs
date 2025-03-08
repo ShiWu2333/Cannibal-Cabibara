@@ -1,26 +1,26 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
-// ÓÃÓÚ¶¨ÒåÃ¿¸ö¼ÇÒäÆ¬¶ÎµÄÊı¾İ½á¹¹
+// ç”¨äºå®šä¹‰æ¯ä¸ªè®°å¿†ç‰‡æ®µçš„æ•°æ®ç»“æ„
 [System.Serializable]
 public class MemoryFragment
 {
-    public int memoryId;                  // ¼ÇÒäÆ¬¶ÎID£¨ÀıÈç£º1 ~ 7£©
-    public List<int> requiredItemIDs;     // ½âËø¸Ã¼ÇÒäÆ¬¶ÎËùĞèµÄµÀ¾ßIDÁĞ±í
-    public bool isUnlocked;               // ÊÇ·ñÒÑ½âËø
+    public int memoryId;                  // è®°å¿†ç‰‡æ®µIDï¼ˆä¾‹å¦‚ï¼š1 ~ 7ï¼‰
+    public List<int> requiredItemIDs;     // è§£é”è¯¥è®°å¿†ç‰‡æ®µæ‰€éœ€çš„é“å…·IDåˆ—è¡¨
+    public bool isUnlocked;               // æ˜¯å¦å·²è§£é”
 }
 
 public class BackPackManager : MonoBehaviour
 {
     public static BackPackManager Instance { get; private set; }
 
-    // ´æ´¢Íæ¼ÒÒÑÊÕ¼¯µÄÏßË÷£¨µÀ¾ß£©£¬ÓÃ Item ½Å±¾ÊµÀı´æ´¢
+    // å­˜å‚¨ç©å®¶å·²æ”¶é›†çš„çº¿ç´¢ï¼ˆé“å…·ï¼‰ï¼Œç”¨ Item è„šæœ¬å®ä¾‹å­˜å‚¨
     public List<Item> collectedItems = new List<Item>();
 
-    // ¶¨Òå 7 ¸ö¼ÇÒäÆ¬¶Î£¬¿ÉÔÚ Inspector ÖĞ±à¼­Ã¿¸öÆ¬¶ÎĞèÒªµÄµÀ¾ßID
+    // å®šä¹‰ 7 ä¸ªè®°å¿†ç‰‡æ®µï¼Œå¯åœ¨ Inspector ä¸­ç¼–è¾‘æ¯ä¸ªç‰‡æ®µéœ€è¦çš„é“å…·ID
     public List<MemoryFragment> memoryFragments = new List<MemoryFragment>();
 
-    // ÓÃÓÚÍ¨Öª UI ¸üĞÂµÄÊÂ¼ş
+    // ç”¨äºé€šçŸ¥ UI æ›´æ–°çš„äº‹ä»¶
     public delegate void OnBackPackUpdated();
     public event OnBackPackUpdated OnBackPackChanged;
 
@@ -37,40 +37,40 @@ public class BackPackManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Ìí¼ÓÒ»¸öµÀ¾ßµ½±³°ü£¬²¢¼ì²éÊÇ·ñÓĞ¼ÇÒäÆ¬¶Î¿ÉÒÔ½âËø
+    /// æ·»åŠ ä¸€ä¸ªé“å…·åˆ°èƒŒåŒ…ï¼Œå¹¶æ£€æŸ¥æ˜¯å¦æœ‰è®°å¿†ç‰‡æ®µå¯ä»¥è§£é”
     /// </summary>
     public void AddItem(Item item)
     {
-        // ±ÜÃâÖØ¸´ÊÕ¼¯£º¼ì²éÊÇ·ñÒÑ¾­´æÔÚÍ¬ÑùµÄ itemID
+        // é¿å…é‡å¤æ”¶é›†ï¼šæ£€æŸ¥æ˜¯å¦å·²ç»å­˜åœ¨åŒæ ·çš„ itemID
         if (collectedItems.Exists(i => i.itemID == item.itemID))
         {
-            Debug.Log($"µÀ¾ß {item.itemName} ÒÑ¾­±»ÊÕ¼¯¹ı¡£");
+            Debug.Log($"é“å…· {item.itemName} å·²ç»è¢«æ”¶é›†è¿‡ã€‚");
             return;
         }
 
         collectedItems.Add(item);
         item.isPickedUp = true;
-        Debug.Log($"ÊÕ¼¯µ½ÏßË÷£º{item.itemName}");
+        Debug.Log($"æ”¶é›†åˆ°çº¿ç´¢ï¼š{item.itemName}");
 
-        // ¼ì²éÃ¿¸ö¼ÇÒäÆ¬¶ÎÊÇ·ñÂú×ã½âËøÌõ¼ş
+        // æ£€æŸ¥æ¯ä¸ªè®°å¿†ç‰‡æ®µæ˜¯å¦æ»¡è¶³è§£é”æ¡ä»¶
         CheckMemoryFragmentsUnlock();
 
-        OnBackPackChanged?.Invoke(); // Í¨Öª UI ¸üĞÂ
+        OnBackPackChanged?.Invoke(); // é€šçŸ¥ UI æ›´æ–°
     }
 
     /// <summary>
-    /// ¼ì²éËùÓĞ¼ÇÒäÆ¬¶ÎµÄ½âËøÌõ¼ş
+    /// æ£€æŸ¥æ‰€æœ‰è®°å¿†ç‰‡æ®µçš„è§£é”æ¡ä»¶
     /// </summary>
     private void CheckMemoryFragmentsUnlock()
     {
         foreach (MemoryFragment fragment in memoryFragments)
         {
-            // Èç¹û¸Ã¼ÇÒäÆ¬¶ÎÒÑ¾­½âËø£¬Ö±½ÓÌø¹ı
+            // å¦‚æœè¯¥è®°å¿†ç‰‡æ®µå·²ç»è§£é”ï¼Œç›´æ¥è·³è¿‡
             if (fragment.isUnlocked)
                 continue;
 
             bool allCollected = true;
-            // ¼ì²é¸Ã¼ÇÒäÆ¬¶ÎËùĞèµÄÃ¿¸öµÀ¾ßÊÇ·ñ¶¼ÒÑÊÕ¼¯
+            // æ£€æŸ¥è¯¥è®°å¿†ç‰‡æ®µæ‰€éœ€çš„æ¯ä¸ªé“å…·æ˜¯å¦éƒ½å·²æ”¶é›†
             foreach (int requiredId in fragment.requiredItemIDs)
             {
                 if (!collectedItems.Exists(i => i.itemID == requiredId))
@@ -80,18 +80,18 @@ public class BackPackManager : MonoBehaviour
                 }
             }
 
-            // µ±Èı¸ö±ØĞèµÀ¾ß¶¼ÊÕ¼¯ºó£¬±ê¼Ç¼ÇÒäÆ¬¶Î½âËø
+            // å½“ä¸‰ä¸ªå¿…éœ€é“å…·éƒ½æ”¶é›†åï¼Œæ ‡è®°è®°å¿†ç‰‡æ®µè§£é”
             if (allCollected)
             {
                 fragment.isUnlocked = true;
-                Debug.Log($"¼ÇÒäÆ¬¶Î {fragment.memoryId} ÒÑ½âËø£¡");
-                // ´Ë´¦¿ÉÒÔµ÷ÓÃ´¥·¢¶¯»­µÄ½Ó¿Ú£¬ÀıÈç TriggerMemoryAnimation(fragment.memoryId);
+                Debug.Log($"è®°å¿†ç‰‡æ®µ {fragment.memoryId} å·²è§£é”ï¼");
+                // æ­¤å¤„å¯ä»¥è°ƒç”¨è§¦å‘åŠ¨ç”»çš„æ¥å£ï¼Œä¾‹å¦‚ TriggerMemoryAnimation(fragment.memoryId);
             }
         }
     }
 
     /// <summary>
-    /// ÅĞ¶ÏÖ¸¶¨¼ÇÒäÆ¬¶ÎÊÇ·ñ½âËø
+    /// åˆ¤æ–­æŒ‡å®šè®°å¿†ç‰‡æ®µæ˜¯å¦è§£é”
     /// </summary>
     public bool IsMemoryFragmentUnlocked(int memoryId)
     {
@@ -100,7 +100,7 @@ public class BackPackManager : MonoBehaviour
     }
 
     /// <summary>
-    /// »ñÈ¡µ±Ç°ÊÕ¼¯µÄËùÓĞµÀ¾ß
+    /// è·å–å½“å‰æ”¶é›†çš„æ‰€æœ‰é“å…·
     /// </summary>
     public List<Item> GetCollectedItems()
     {

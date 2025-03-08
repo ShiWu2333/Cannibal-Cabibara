@@ -1,41 +1,41 @@
-using System.Collections;
+ï»¿using System.Collections;
 using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    public bool isPickedUp = false; // ÊÇ·ñ±»¼ñÆğ
-    public string itemName; // ÎïÆ·Ãû³Æ
-    public int itemID; // ÎïÆ·Î¨Ò»ID
-    public Sprite itemIcon; // ÎïÆ·Í¼±ê£¨ÓÃÓÚUI£©
-    public bool canBePickedUp = true; // ÊÇ·ñ¿ÉÒÔ±»Ê°È¡
+    public bool isPickedUp = false; // æ˜¯å¦è¢«æ¡èµ·
+    public string itemName; // ç‰©å“åç§°
+    public int itemID; // ç‰©å“å”¯ä¸€ID
+    public Sprite itemIcon; // ç‰©å“å›¾æ ‡ï¼ˆç”¨äºUIï¼‰
+    public bool canBePickedUp = true; // æ˜¯å¦å¯ä»¥è¢«æ‹¾å–
 
-    // ¸ßÁÁÑ¡Ôñ²¿·ÖµÄ²ÎÊı
-    [SerializeField] private float fadeDuration = 0.5f; // ½¥±ä³ÖĞøÊ±¼ä
-    [SerializeField] private Color highlightColor = Color.blue; // ¸ßÁÁÑÕÉ«
-    [SerializeField] private Color selectedColor = Color.yellow; // Ñ¡ÖĞÑÕÉ«
-    [SerializeField] private float highlightDistance = 5f; // ¸ßÁÁ¾àÀë
-    [SerializeField] private float selectDistance = 0.5f; // Ñ¡ÖĞ¾àÀë
-    [SerializeField] private float highLightWith = 2f; // ¸ßÁÁ¿í¶È
-    [SerializeField] private float selectedWith = 5f; // Ñ¡ÖĞ¿í¶È
+    // é«˜äº®é€‰æ‹©éƒ¨åˆ†çš„å‚æ•°
+    [SerializeField] private float fadeDuration = 0.5f; // æ¸å˜æŒç»­æ—¶é—´
+    [SerializeField] private Color highlightColor = Color.blue; // é«˜äº®é¢œè‰²
+    [SerializeField] private Color selectedColor = Color.yellow; // é€‰ä¸­é¢œè‰²
+    [SerializeField] private float highlightDistance = 5f; // é«˜äº®è·ç¦»
+    [SerializeField] private float selectDistance = 0.5f; // é€‰ä¸­è·ç¦»
+    [SerializeField] private float highLightWith = 2f; // é«˜äº®å®½åº¦
+    [SerializeField] private float selectedWith = 5f; // é€‰ä¸­å®½åº¦
 
-    // ¸ßÁÁºôÎü
-    [SerializeField] private float breathSpeed = 1f; // ºôÎüËÙ¶È
-    [SerializeField] private float minAlpha = 0.2f; // ×îĞ¡¿í¶È
-    [SerializeField] private float maxAlpha = 0.8f; // ×î´ó¿í¶È
+    // é«˜äº®å‘¼å¸
+    [SerializeField] private float breathSpeed = 1f; // å‘¼å¸é€Ÿåº¦
+    [SerializeField] private float minAlpha = 0.2f; // æœ€å°å®½åº¦
+    [SerializeField] private float maxAlpha = 0.8f; // æœ€å¤§å®½åº¦
 
     [SerializeField] private Outline outline;
-    private bool isHighlighted = false; // ÊÇ·ñ¸ßÁÁ
-    private bool isSelected = false; // ÊÇ·ñÑ¡ÖĞ
-    private GameObject player; // »º´æÍæ¼Ò¶ÔÏó
+    private bool isHighlighted = false; // æ˜¯å¦é«˜äº®
+    private bool isSelected = false; // æ˜¯å¦é€‰ä¸­
+    private GameObject player; // ç¼“å­˜ç©å®¶å¯¹è±¡
 
     private void Start()
     {
         if (outline != null)
         {
             outline.OutlineMode = Outline.Mode.OutlineVisible;
-            outline.OutlineColor = highlightColor; // ÉèÖÃ³õÊ¼ÑÕÉ«
-            outline.OutlineWidth = highLightWith; // ÉèÖÃ³õÊ¼¿í¶È
-            outline.enabled = false; // ³õÊ¼½ûÓÃÍâ·¢¹â
+            outline.OutlineColor = highlightColor; // è®¾ç½®åˆå§‹é¢œè‰²
+            outline.OutlineWidth = highLightWith; // è®¾ç½®åˆå§‹å®½åº¦
+            outline.enabled = false; // åˆå§‹ç¦ç”¨å¤–å‘å…‰
         }
         else
         {
@@ -51,64 +51,67 @@ public class Item : MonoBehaviour
 
     private void Update()
     {
-        if (isPickedUp) return; // Èç¹ûÎïÆ·ÒÑ±»¼ñÆğ£¬ÔòÌø¹ı
+        if (isPickedUp) return; // å¦‚æœç‰©å“å·²è¢«æ¡èµ·ï¼Œåˆ™è·³è¿‡
 
-        // »ñÈ¡Íæ¼ÒÎ»ÖÃ
+        // è·å–ç©å®¶ä½ç½®
         if (player == null) return;
 
-        // ¼ÆËãÍæ¼ÒÓëÎïÌåµÄ¾àÀë
+        // è®¡ç®—ç©å®¶ä¸ç‰©ä½“çš„è·ç¦»
         float distance = Vector3.Distance(player.transform.position, transform.position);
+        
+        // ç¡®ä¿é«˜äº®å’Œé€‰ä¸­çŠ¶æ€æ ¹æ®è·ç¦»åŠ¨æ€æ›´æ–°
+        bool shouldHighlight = distance <= highlightDistance;
+        bool shouldSelect = IsInSelectionBox();
 
-        // ÅĞ¶ÏÊÇ·ñ¸ßÁÁ
-        if (distance <= highlightDistance)
+        if (shouldHighlight)
         {
             if (!isHighlighted)
             {
-                Highlight(); // ¸ßÁÁÎïÌå
-            }
-
-            // ÅĞ¶ÏÊÇ·ñÑ¡ÖĞ
-            if (IsInSelectionBox())
-            {
-                if (!isSelected)
-                {
-                    Select(); // Ñ¡ÖĞÎïÌå
-                }
-            }
-            else
-            {
-                if (isSelected)
-                {
-                    Deselect(); // È¡ÏûÑ¡ÖĞ
-                }
-            }
-
-            // ¸ßÁÁÊ±ÆôÓÃºôÎüĞ§¹û£¬Ñ¡ÖĞÊ±Í£Ö¹ºôÎüĞ§¹û
-            if (outline != null && outline.enabled)
-            {
-                if (isHighlighted && !isSelected) // ½öÔÚ¸ßÁÁÇÒÎ´Ñ¡ÖĞÊ±ÆôÓÃºôÎüĞ§¹û
-                {
-                    float breath = (Mathf.Sin(Time.time * breathSpeed) + 1) * 0.5f; // ½«·¶Î§´Ó [-1, 1] Ó³Éäµ½ [0, 1]
-                    float alpha = Mathf.Lerp(minAlpha, maxAlpha, breath); // ÔÚ×îĞ¡ÖµºÍ×î´óÖµÖ®¼ä²åÖµ
-
-                    // ¸üĞÂ OutlineColor µÄ Alpha Öµ
-                    Color currentColor = outline.OutlineColor;
-                    currentColor.a = alpha; // ĞŞ¸Ä Alpha Öµ
-                    outline.OutlineColor = currentColor;
-                }
-                else if (isSelected) // Ñ¡ÖĞÊ±¹Ì¶¨ Alpha ÖµÎª×î´óÖµ
-                {
-                    Color currentColor = outline.OutlineColor;
-                    currentColor.a = maxAlpha; // ¹Ì¶¨ Alpha Öµ
-                    outline.OutlineColor = currentColor;
-                }
+                Highlight(); // è¿›å…¥é«˜äº®çŠ¶æ€
             }
         }
         else
         {
             if (isHighlighted)
             {
-                RemoveHighlight(); // È¡Ïû¸ßÁÁ
+                RemoveHighlight(); // é€€å‡ºé«˜äº®çŠ¶æ€
+            }
+        }
+
+        // å¤„ç†é€‰ä¸­é€»è¾‘
+        if (shouldSelect)
+        {
+            if (!isSelected)
+            {
+                Select(); // è¿›å…¥é€‰ä¸­çŠ¶æ€
+            }
+        }
+        else
+        {
+            if (isSelected)
+            {
+                Deselect(); // å–æ¶ˆé€‰ä¸­
+            }
+        }
+
+        // âœ… é‡æ–°åŠ å…¥å‘¼å¸æ•ˆæœ
+        if (outline != null && outline.enabled)
+        {
+            if (isHighlighted && !isSelected) // ä»…åœ¨é«˜äº®ä¸”æœªé€‰ä¸­æ—¶å¯ç”¨å‘¼å¸æ•ˆæœ
+            {
+                float breath = (Mathf.Sin(Time.time * breathSpeed) + 1) * 0.5f; // å°†èŒƒå›´ä» [-1, 1] æ˜ å°„åˆ° [0, 1]
+                float alpha = Mathf.Lerp(minAlpha, maxAlpha, breath); // åœ¨æœ€å°å€¼å’Œæœ€å¤§å€¼ä¹‹é—´æ’å€¼
+
+                // æ›´æ–° OutlineColor çš„ Alpha å€¼
+                Color currentColor = outline.OutlineColor;
+                currentColor.a = alpha; // ä¿®æ”¹ Alpha å€¼
+                outline.OutlineColor = currentColor;
+            }
+            else if (isSelected) // é€‰ä¸­æ—¶å›ºå®š Alpha å€¼ä¸ºæœ€å¤§å€¼
+            {
+                Color currentColor = outline.OutlineColor;
+                currentColor.a = maxAlpha; // å›ºå®š Alpha å€¼
+                outline.OutlineColor = currentColor;
             }
         }
     }
@@ -117,14 +120,14 @@ public class Item : MonoBehaviour
     {
         if (player == null) return false;
 
-        // »ñÈ¡ PlayerMovement ½Å±¾
+        // è·å– PlayerMovement è„šæœ¬
         PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
         if (playerMovement == null) return false;
 
-        // ¼ÆËãÁ¢·½ÌåÖĞĞÄµã£¨Óë PlayerMovement Ò»ÖÂ£©
+        // è®¡ç®—ç«‹æ–¹ä½“ä¸­å¿ƒç‚¹ï¼ˆä¸ PlayerMovement ä¸€è‡´ï¼‰
         Vector3 boxCenter = player.transform.position + player.transform.forward * 0.5f;
 
-        // ¼ì²âÎïÌåÊÇ·ñÔÚÁ¢·½ÌåÇøÓòÄÚ
+        // æ£€æµ‹ç‰©ä½“æ˜¯å¦åœ¨ç«‹æ–¹ä½“åŒºåŸŸå†…
         Collider[] hitColliders = Physics.OverlapBox(boxCenter, new Vector3(playerMovement.selectDistance, playerMovement.selectDistance, 0.5f), player.transform.rotation);
         foreach (var hitCollider in hitColliders)
         {
@@ -140,28 +143,28 @@ public class Item : MonoBehaviour
     {
         if (outline != null)
         {
-            outline.OutlineColor = selectedColor; // ÉèÖÃÑ¡ÖĞÑÕÉ«
-            outline.OutlineWidth = selectedWith; // ÉèÖÃÑ¡ÖĞ¿í¶È
+            outline.OutlineColor = selectedColor; // è®¾ç½®é€‰ä¸­é¢œè‰²
+            outline.OutlineWidth = selectedWith; // è®¾ç½®é€‰ä¸­å®½åº¦
 
-            // Ñ¡ÖĞÊ±¹Ì¶¨ Alpha ÖµÎª×î´óÖµ
+            // é€‰ä¸­æ—¶å›ºå®š Alpha å€¼ä¸ºæœ€å¤§å€¼
             Color currentColor = outline.OutlineColor;
-            currentColor.a = maxAlpha; // ¹Ì¶¨ Alpha Öµ
+            currentColor.a = maxAlpha; // å›ºå®š Alpha å€¼
             outline.OutlineColor = currentColor;
 
             isSelected = true;
         }
     }
 
-    private void Deselect()
+    public void Deselect()
     {
         if (outline != null)
         {
-            outline.OutlineColor = highlightColor; // »Ö¸´¸ßÁÁÑÕÉ«
-            outline.OutlineWidth = highLightWith; // »Ö¸´¸ßÁÁ¿í¶È
+            outline.OutlineColor = highlightColor; // æ¢å¤é«˜äº®é¢œè‰²
+            outline.OutlineWidth = highLightWith; // æ¢å¤é«˜äº®å®½åº¦
 
-            // È¡ÏûÑ¡ÖĞÊ±»Ö¸´ºôÎüĞ§¹û
+            // å–æ¶ˆé€‰ä¸­æ—¶æ¢å¤å‘¼å¸æ•ˆæœ
             Color currentColor = outline.OutlineColor;
-            currentColor.a = maxAlpha; // ³õÊ¼ÉèÖÃÎª×î´óÖµ
+            currentColor.a = maxAlpha; // åˆå§‹è®¾ç½®ä¸ºæœ€å¤§å€¼
             outline.OutlineColor = currentColor;
 
             isSelected = false;
@@ -172,25 +175,25 @@ public class Item : MonoBehaviour
     {
         if (outline != null)
         {
-            outline.enabled = true; // ÆôÓÃÍâ·¢¹â
-            outline.OutlineColor = highlightColor; // ÉèÖÃ¸ßÁÁÑÕÉ«
-            outline.OutlineWidth = highLightWith; // ÉèÖÃ¸ßÁÁ¿í¶È
+            outline.enabled = true; // å¯ç”¨å¤–å‘å…‰
+            outline.OutlineColor = highlightColor; // è®¾ç½®é«˜äº®é¢œè‰²
+            outline.OutlineWidth = highLightWith; // è®¾ç½®é«˜äº®å®½åº¦
             isHighlighted = true;
 
-            // Æô¶¯½¥±ä±äÁÁĞ§¹û
+            // å¯åŠ¨æ¸å˜å˜äº®æ•ˆæœ
             StartCoroutine(FadeOutline(true));
             Debug.Log("Highlight enabled.");
         }
     }
 
-    private void RemoveHighlight()
+    public void RemoveHighlight()
     {
         if (outline != null)
         {
             isHighlighted = false;
             isSelected = false;
 
-            // Æô¶¯½¥±ä±ä°µĞ§¹û
+            // å¯åŠ¨æ¸å˜å˜æš—æ•ˆæœ
             StartCoroutine(FadeOutline(false));
             Debug.Log("Highlight disabled.");
         }
@@ -203,29 +206,29 @@ public class Item : MonoBehaviour
 
     private IEnumerator FadeOutline(bool fadeIn)
     {
-        float startAlpha = outline.OutlineColor.a; // µ±Ç° Alpha Öµ
-        float targetAlpha = fadeIn ? maxAlpha : 0f; // Ä¿±ê Alpha Öµ
-        float elapsedTime = 0f; // ÒÑÓÃÊ±¼ä
+        float startAlpha = outline.OutlineColor.a; // å½“å‰ Alpha å€¼
+        float targetAlpha = fadeIn ? maxAlpha : 0f; // ç›®æ ‡ Alpha å€¼
+        float elapsedTime = 0f; // å·²ç”¨æ—¶é—´
 
         while (elapsedTime < fadeDuration)
         {
             elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / fadeDuration); // ¼ÆËã²åÖµ±ÈÀı
+            float t = Mathf.Clamp01(elapsedTime / fadeDuration); // è®¡ç®—æ’å€¼æ¯”ä¾‹
 
-            // ¸üĞÂ Alpha Öµ
+            // æ›´æ–° Alpha å€¼
             Color currentColor = outline.OutlineColor;
             currentColor.a = Mathf.Lerp(startAlpha, targetAlpha, t);
             outline.OutlineColor = currentColor;
 
-            yield return null; // µÈ´ıÏÂÒ»Ö¡
+            yield return null; // ç­‰å¾…ä¸‹ä¸€å¸§
         }
 
-        // È·±£×îÖÕ Alpha ÖµÕıÈ·
+        // ç¡®ä¿æœ€ç»ˆ Alpha å€¼æ­£ç¡®
         Color finalColor = outline.OutlineColor;
         finalColor.a = targetAlpha;
         outline.OutlineColor = finalColor;
 
-        // Èç¹û½¥±ä½áÊøÇÒÊÇ¹Ø±Õ²Ù×÷£¬Ôò½ûÓÃ Outline
+        // å¦‚æœæ¸å˜ç»“æŸä¸”æ˜¯å…³é—­æ“ä½œï¼Œåˆ™ç¦ç”¨ Outline
         if (!fadeIn)
         {
             outline.enabled = false;
@@ -234,11 +237,11 @@ public class Item : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        // »æÖÆ¸ßÁÁ·¶Î§
+        // ç»˜åˆ¶é«˜äº®èŒƒå›´
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, highlightDistance);
 
-        // »æÖÆÑ¡ÖĞ·¶Î§£¨Óë PlayerMovement Ò»ÖÂ£©
+        // ç»˜åˆ¶é€‰ä¸­èŒƒå›´ï¼ˆä¸ PlayerMovement ä¸€è‡´ï¼‰
         if (player != null)
         {
             PlayerMovement playerMovement = player.GetComponent<PlayerMovement>();
@@ -247,7 +250,7 @@ public class Item : MonoBehaviour
                 Vector3 boxCenter = player.transform.position + player.transform.forward * 0.5f;
                 Gizmos.color = Color.yellow;
                 Gizmos.matrix = Matrix4x4.TRS(boxCenter, player.transform.rotation, Vector3.one);
-                Gizmos.DrawWireCube(Vector3.zero, new Vector3(playerMovement.selectDistance * 2, playerMovement.selectDistance * 2, 1f)); // ³¤ 1f µÄÁ¢·½Ìå
+                Gizmos.DrawWireCube(Vector3.zero, new Vector3(playerMovement.selectDistance * 2, playerMovement.selectDistance * 2, 1f)); // é•¿ 1f çš„ç«‹æ–¹ä½“
             }
         }
     }

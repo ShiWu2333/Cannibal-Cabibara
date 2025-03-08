@@ -10,6 +10,7 @@ public class CutSceneManager : MonoBehaviour
     public VideoClip[] videoClips;         // 存储多个视频片段，可在 Inspector 中配置
 
     [SerializeField] private GameObject backPackPanel;       // 背包界面（BackPackPanel）的引用
+    [SerializeField] private GameObject backpackIcon; //背包icon
     [SerializeField] private GameObject cutScenePanel;
 
     private void Awake()
@@ -42,6 +43,12 @@ public class CutSceneManager : MonoBehaviour
         {
             backPackPanel.SetActive(false);
             cutScenePanel.SetActive(true);
+        }
+
+        // 隐藏背包图标
+        if (backpackIcon != null)
+        {
+            backpackIcon.SetActive(false); 
         }
 
         videoPlayer.clip = clip;
