@@ -6,58 +6,38 @@ public class BubbleController : MonoBehaviour
 {
     public GameObject bubbleCanvas; // 气泡 UI
     public Image bubbleIcon; // 气泡内部的图标 (Display Image)
-    private BubbleTrigger currentTrigger = null; // 记录当前触发的Trigger
-    public float delayTime;
+    public Sprite defaultIcon; // 默认气泡图标（可选，比如感叹号）
+
+    private Coroutine hideCoroutine; // 记录隐藏的 Coroutine，防止重复调用
 
     void Start()
     {
-        if (bubbleCanvas == null)
+        if (bubbleCanvas == null || bubbleIcon == null)
         {
-            Debug.LogError("BubbleController: bubbleCanvas 未赋值！");
-            return;
-        }
-        if (bubbleIcon == null)
-        {
-            Debug.LogError("BubbleController: bubbleIcon 未赋值！");
+            Debug.LogError("BubbleController: bubbleCanvas 或 bubbleIcon 未赋值！");
             return;
         }
 
         bubbleCanvas.SetActive(false); // 初始隐藏
     }
 
-    public void ShowBubble(Sprite newIcon, BubbleTrigger trigger)
+    public void ShowBubble(Sprite newIcon)
     {
-        if (currentTrigger == null && bubbleCanvas != null && bubbleIcon != null) // 确保对象不为空
-        {
-            StartCoroutine(ShowBubbleWithDelay(newIcon, delayTime));
-            currentTrigger = trigger;
-        }
-    }
-
-    public void HideBubble(BubbleTrigger trigger)
-    {
-        if (currentTrigger == trigger)
-        {
-            StartCoroutine(HideBubbleWithDelay(delayTime));
-            currentTrigger = null;
-        }
-    }
-
-    IEnumerator ShowBubbleWithDelay(Sprite newIcon, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-
         if (bubbleCanvas != null && bubbleIcon != null)
         {
             bubbleCanvas.SetActive(true);
             bubbleIcon.sprite = newIcon; // **更新气泡图案**
             Debug.Log("BubbleController: 显示气泡，图片 = " + newIcon.name);
-        }
-        else
-        {
-            Debug.LogError("BubbleController: bubbleCanvas 或 bubbleIcon 为空！");
+
+            // 取消旧的隐藏计时器，防止多次触发导致提前隐藏
+            if (hideCoroutine != null)
+            {
+                StopCoroutine(hideCoroutine);
+            }
+            hideCoroutine = StartCoroutine(HideBubbleWithDelay(3f)); // 3 秒后自动隐藏
         }
     }
+
 
     IEnumerator HideBubbleWithDelay(float delay)
     {

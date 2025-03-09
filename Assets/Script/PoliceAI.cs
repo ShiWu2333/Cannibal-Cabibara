@@ -3,6 +3,7 @@ using System.Collections;
 
 public class PoliceAI : MonoBehaviour
 {
+
     [Header("巡逻设置")]
     public bool isGuard = false; // 是否为站岗模式（true = 原地不动, false = 巡逻）
     public Transform pointA; // 巡逻点 A
@@ -20,6 +21,10 @@ public class PoliceAI : MonoBehaviour
     public Transform respawnPoint; // 玩家复活点
     public float caughtWaitTime = 1.0f; // 被抓住后等待时间
 
+    [Header("气泡设置")]
+    private BubbleController bubbleController;
+    public Sprite npcBubbleIcon; // NPC 触发的气泡图标
+
     private Rigidbody rb;
     private bool isChasing = false; // 是否在追捕玩家
 
@@ -34,6 +39,21 @@ public class PoliceAI : MonoBehaviour
         {
             currentTarget = pointA;
             StartCoroutine(Patrol());
+        }
+
+        bubbleController = GetComponent<BubbleController>();
+
+        if (bubbleController == null)
+        {
+            Debug.LogError("BubbleController 组件未挂载在 NPC 上！");
+        }
+        if (npcBubbleIcon == null)
+        {
+            Debug.LogError("NPC 没有指定气泡图标！");
+        }
+        if (detectionCollider == null)
+        {
+            Debug.LogError("NPC 没有检测范围 Collider！");
         }
     }
 
@@ -82,6 +102,7 @@ public class PoliceAI : MonoBehaviour
     {
         if (other.CompareTag("Player")) // 只检查Tag是否是"Player"
         {
+            bubbleController.ShowBubble(npcBubbleIcon);
             if (!isChasing)
             {
                 isChasing = true;
