@@ -1,28 +1,34 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Video;
+using UnityEngine.UI;
+using System.Collections;
 
 public class CutSceneManager : MonoBehaviour
 {
-    // µ¥ÀıÄ£Ê½£ºÈ«¾ÖÎ¨Ò»ÊµÀı
+    // å•ä¾‹æ¨¡å¼ï¼šå…¨å±€å”¯ä¸€å®ä¾‹
     public static CutSceneManager Instance { get; private set; }
 
-    public VideoPlayer videoPlayer;      // VideoPlayer ×é¼şÒıÓÃ
-    public VideoClip[] videoClips;         // ´æ´¢¶à¸öÊÓÆµÆ¬¶Î£¬¿ÉÔÚ Inspector ÖĞÅäÖÃ
+    public VideoPlayer videoPlayer;      // VideoPlayer ç»„ä»¶å¼•ç”¨
+    public VideoClip[] videoClips;         // å­˜å‚¨å¤šä¸ªè§†é¢‘ç‰‡æ®µï¼Œå¯åœ¨ Inspector ä¸­é…ç½®
 
-    [SerializeField] private GameObject backPackPanel;       // ±³°ü½çÃæ£¨BackPackPanel£©µÄÒıÓÃ
-    [SerializeField] private GameObject backpackIcon; //±³°üicon
+    [SerializeField] private GameObject backPackPanel;       // èƒŒåŒ…ç•Œé¢ï¼ˆBackPackPanelï¼‰çš„å¼•ç”¨
+    [SerializeField] private GameObject backpackIcon; //èƒŒåŒ…icon
     [SerializeField] private GameObject cutScenePanel;
+    [SerializeField] private GameObject backButton;  // âœ… æ‹–å…¥ BackButton
+
+    [Header("é»‘å± UI")]
+    [SerializeField] private Image fadeImage;  // âœ… ç›´æ¥æ‹–å…¥ `Canvas` é‡Œçš„ `FadeImage`
 
     private void Awake()
     {
 
-        // Èç¹ûµ±Ç°ÊµÀıÎª¿Õ£¬ÔòÉèÖÃÎª±¾¶ÔÏó£¬·ñÔòÏú»ÙÖØ¸´¶ÔÏó
+        // å¦‚æœå½“å‰å®ä¾‹ä¸ºç©ºï¼Œåˆ™è®¾ç½®ä¸ºæœ¬å¯¹è±¡ï¼Œå¦åˆ™é”€æ¯é‡å¤å¯¹è±¡
         if (Instance == null)
         {
             Instance = this;
-            // Èç¹ûÏ£Íû¹ÜÀíÆ÷ÔÚ³¡¾°ÇĞ»»Ê±±£Áô£¬¿ÉÒÔµ÷ÓÃÏÂÃæÕâÒ»ĞĞ£º
+            // å¦‚æœå¸Œæœ›ç®¡ç†å™¨åœ¨åœºæ™¯åˆ‡æ¢æ—¶ä¿ç•™ï¼Œå¯ä»¥è°ƒç”¨ä¸‹é¢è¿™ä¸€è¡Œï¼š
             // DontDestroyOnLoad(gameObject);
-            Debug.Log("CutSceneManager ÊµÀıÒÑ´´½¨");
+            Debug.Log("CutSceneManager å®ä¾‹å·²åˆ›å»º");
         }
         else
         {
@@ -34,18 +40,18 @@ public class CutSceneManager : MonoBehaviour
     {
         if (clip == null)
         {
-            Debug.LogWarning("PlayVideo: Ö¸¶¨µÄÊÓÆµÆ¬¶ÎÎª null");
+            Debug.LogWarning("PlayVideo: æŒ‡å®šçš„è§†é¢‘ç‰‡æ®µä¸º null");
             return;
         }
 
-        // Òş²Ø±³°ü½çÃæ
+        // éšè—èƒŒåŒ…ç•Œé¢
         if (backPackPanel != null & cutScenePanel != null)
         {
             backPackPanel.SetActive(false);
             cutScenePanel.SetActive(true);
         }
 
-        // Òş²Ø±³°üÍ¼±ê
+        // éšè—èƒŒåŒ…å›¾æ ‡
         if (backpackIcon != null)
         {
             backpackIcon.SetActive(false); 
@@ -58,38 +64,118 @@ public class CutSceneManager : MonoBehaviour
 
     public void PlayVideo(int index)
     {
-        Debug.Log("PlayVideo ±»µ÷ÓÃ£¬Ë÷Òı: " + index);
+        Debug.Log("PlayVideo è¢«è°ƒç”¨ï¼Œç´¢å¼•: " + index);
         if (videoClips == null || index < 0 || index >= videoClips.Length)
         {
-            Debug.LogWarning("PlayVideo: Ë÷ÒıÔ½½ç»ò videoClips Êı×éÎ´ÉèÖÃ");
+            Debug.LogWarning("PlayVideo: ç´¢å¼•è¶Šç•Œæˆ– videoClips æ•°ç»„æœªè®¾ç½®");
             return;
         }
-        Debug.Log("²¥·ÅÊÓÆµ: " + videoClips[index].name);
+        Debug.Log("æ’­æ”¾è§†é¢‘: " + videoClips[index].name);
         PlayVideo(videoClips[index]);
     }
 
     public void PlayMemoryVideo(int memoryId)
     {
-        // ¼ì²é¼ÇÒäÆ¬¶ÎÊÇ·ñ½âËø
+        // æ£€æŸ¥è®°å¿†ç‰‡æ®µæ˜¯å¦è§£é”
         if (BackPackManager.Instance.IsMemoryFragmentUnlocked(memoryId))
         {
-            // ¼ÙÉè memoryId ´Ó1¿ªÊ¼£¬Óë videoClips Êı×éË÷Òı¶ÔÓ¦ĞèÒª¼õ1
+            // å‡è®¾ memoryId ä»1å¼€å§‹ï¼Œä¸ videoClips æ•°ç»„ç´¢å¼•å¯¹åº”éœ€è¦å‡1
             int index = memoryId - 1;
             if (videoClips != null && index >= 0 && index < videoClips.Length)
             {
-                PlayVideo(videoClips[index]);
-                Debug.Log("²¥·Å¼ÇÒäÊÓÆµ£¬memoryId: " + memoryId + ", videoIndex: " + index);
+                StartCoroutine(PlayVideoWithFade(videoClips[index]));
+                Debug.Log("æ’­æ”¾è®°å¿†è§†é¢‘ï¼ŒmemoryId: " + memoryId + ", videoIndex: " + index);
             }
             else
             {
-                Debug.LogWarning("ÊÓÆµË÷ÒıÔ½½ç»ò videoClips Êı×éÎ´ÉèÖÃ");
+                Debug.LogWarning("è§†é¢‘ç´¢å¼•è¶Šç•Œæˆ– videoClips æ•°ç»„æœªè®¾ç½®");
             }
         }
         else
         {
-            Debug.Log("¼ÇÒäÆ¬¶Î " + memoryId + " Î´½âËø£¬ÎŞ·¨²¥·ÅÊÓÆµ¡£");
+            Debug.Log("è®°å¿†ç‰‡æ®µ " + memoryId + " æœªè§£é”ï¼Œæ— æ³•æ’­æ”¾è§†é¢‘ã€‚");
         }
     }
+
+    private IEnumerator PlayVideoWithFade(VideoClip clip)
+    {
+        // 1. æ·¡å…¥é»‘å±
+        yield return StartCoroutine(FadeToBlack(0.5f));  // âœ… 0.5 ç§’é»‘å±
+
+        // 2. æ’­æ”¾è§†é¢‘
+        PlayVideo(clip);
+        backButton.SetActive(false);
+
+        // 3ï¸âƒ£ ç«‹åˆ»å˜é€æ˜ï¼Œè®©è§†é¢‘å¯è§
+        yield return StartCoroutine(InstantFadeFromBlack());
+
+        // 4. ç­‰å¾…è§†é¢‘æ’­æ”¾å®Œæˆ
+        // ä½¿ç”¨ `loopPointReached` äº‹ä»¶ç­‰å¾…è§†é¢‘æ’­æ”¾å®Œ
+        bool videoFinished = false;
+        videoPlayer.loopPointReached += (VideoPlayer vp) => { videoFinished = true; };
+
+        yield return new WaitUntil(() => videoFinished);
+
+        // 5 ç¡®ä¿ StopVideo() åªåœ¨è§†é¢‘æ’­æ”¾å®Œåè°ƒç”¨
+        videoPlayer.Stop();
+
+        // 6. æ·¡å‡ºé»‘å±
+        yield return StartCoroutine(FadeFromBlack(0.5f));  // âœ… 0.5 ç§’æ·¡å‡º
+    }
+
+    private IEnumerator FadeToBlack(float duration)
+    {
+        Debug.Log("è°ƒç”¨fadetoblack");
+        float elapsedTime = 0f;
+        Color color = fadeImage.color;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            color.a = Mathf.Lerp(0f, 1f, elapsedTime / duration);
+            fadeImage.color = color;
+            yield return null;
+        }
+    }
+
+    private IEnumerator InstantFadeFromBlack()
+    {
+        if (fadeImage == null) yield break;  // é¿å…ç©ºå¼•ç”¨é”™è¯¯
+
+        Color color = fadeImage.color;
+        color.a = 0f;
+        fadeImage.color = color;
+
+        yield return null;  // ç«‹åˆ»æ‰§è¡Œ
+    }
+
+    private IEnumerator FadeFromBlack(float duration)
+    {
+        Debug.Log("è°ƒç”¨fadefromblack");
+        float elapsedTime = 0f;
+        Color color = fadeImage.color;
+
+        while (elapsedTime < duration)
+        {
+            elapsedTime += Time.deltaTime;
+            color.a = Mathf.Lerp(1f, 0f, elapsedTime / duration);
+            fadeImage.color = color;
+            yield return null;
+        }
+    }
+
+    public void PlayMemoryVideoDelayed(int memoryId)
+    {
+            Debug.Log($"è®°å¿†ç‰‡æ®µ {memoryId} å³å°†åœ¨ 1.5 ç§’åæ’­æ”¾...");
+            StartCoroutine(PlayMemoryVideoCoroutine(memoryId));
+    }
+
+    private IEnumerator PlayMemoryVideoCoroutine(int memoryId)
+    {
+        yield return new WaitForSeconds(1.5f); // é€‚å½“çš„å»¶è¿Ÿï¼Œé¿å…çªå…€
+        PlayMemoryVideo(memoryId);
+    }
+
 
     public void PauseVideo()
     {
@@ -105,7 +191,7 @@ public class CutSceneManager : MonoBehaviour
     {
         videoPlayer.Stop();
 
-        // »Ö¸´ÏÔÊ¾±³°ü½çÃæ
+        // æ¢å¤æ˜¾ç¤ºèƒŒåŒ…ç•Œé¢
         if (backPackPanel != null)
         {
             cutScenePanel.SetActive(false);

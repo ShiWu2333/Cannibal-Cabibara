@@ -5,9 +5,11 @@ public class Item : MonoBehaviour
 {
     public bool isPickedUp = false; // 是否被捡起
     public string itemName; // 物品名称
-    public int itemID; // 物品唯一ID
+    public int itemID; // 公告栏线索编号顺序
     public Sprite itemIcon; // 物品图标（用于UI）
     public bool canBePickedUp = true; // 是否可以被拾取
+
+    public bool isPoliceEvidence; // ✅ 是否是警察证据
 
     // 高亮选择部分的参数
     [SerializeField] private float fadeDuration = 0.5f; // 渐变持续时间
@@ -24,7 +26,7 @@ public class Item : MonoBehaviour
     [SerializeField] private float maxAlpha = 0.8f; // 最大宽度
 
     [SerializeField] private Outline outline;
-    private bool isHighlighted = false; // 是否高亮
+    public bool isHighlighted = false; // 是否高亮
     private bool isSelected = false; // 是否选中
     private GameObject player; // 缓存玩家对象
 
@@ -51,7 +53,6 @@ public class Item : MonoBehaviour
 
     private void Update()
     {
-        if (isPickedUp) return; // 如果物品已被捡起，则跳过
 
         // 获取玩家位置
         if (player == null) return;
@@ -199,10 +200,19 @@ public class Item : MonoBehaviour
         }
     }
 
+    public void UpdateHighlightState()
+    {
+        // 让 Update() 来决定是否高亮，而不是强行开启高亮
+        isHighlighted = false;
+    }
+
     public void OnPickedUp()
     {
+        isPickedUp = true;
+        Debug.Log($"{itemName} 被拾取");
         RemoveHighlight();
     }
+
 
     private IEnumerator FadeOutline(bool fadeIn)
     {

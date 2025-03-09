@@ -1,20 +1,21 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
     public float speed = 5f;
     public float rotationSpeed = 500f;
-    public float selectDistance = 0.5f; // Ñ¡Ôñ·¶Î§µÄ°ë±ß³¤
+    public float selectDistance = 0.5f; // é€‰æ‹©èŒƒå›´çš„åŠè¾¹é•¿
     private Vector2 move;
     public bool pauseInput;
 
     [SerializeField] private Transform holdPosition;
     [SerializeField] private BackPackUIManager backPackUIManager;
+    [SerializeField] private NoticeBoardManager noticeBoardManager;
     private Item carriedItem;
 
-    public ItemInspection itemInspection; // ¼ìÊÓ¹¦ÄÜ½Å±¾
-    private Rigidbody rb; // Ìí¼Ó Rigidbody
+    public ItemInspection itemInspection; // æ£€è§†åŠŸèƒ½è„šæœ¬
+    private Rigidbody rb; // æ·»åŠ  Rigidbody
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -23,8 +24,8 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        rb = GetComponent<Rigidbody>(); // »ñÈ¡ Rigidbody ×é¼ş
-        rb.freezeRotation = true; // ·ÀÖ¹½ÇÉ«Ğı×ª
+        rb = GetComponent<Rigidbody>(); // è·å– Rigidbody ç»„ä»¶
+        rb.freezeRotation = true; // é˜²æ­¢è§’è‰²æ—‹è½¬
         pauseInput = false;
     }
 
@@ -35,14 +36,14 @@ public class PlayerMovement : MonoBehaviour
             movePlayer();
             CheckInteractInput();
 
-            // °´ÏÂ Q ¼ü¼ìÊÓÎïÆ·
-            if (Input.GetKeyDown(KeyCode.Q))
+            // æŒ‰ä¸‹ Q é”®æ£€è§†ç‰©å“
+            if (Input.GetKeyDown(KeyCode.Q) && itemInspection != null && itemInspection.canToggle)
             {
-                InspectSelectedItem();
-                Debug.Log("Q has been pressed");
+                    InspectSelectedItem();
+                   
             }
 
-            // ¼ì²â B ¼ü°´ÏÂ£¬ÇĞ»»±³°üUIÏÔÊ¾
+            // æ£€æµ‹ B é”®æŒ‰ä¸‹ï¼Œåˆ‡æ¢èƒŒåŒ…UIæ˜¾ç¤º
             if (Input.GetKeyDown(KeyCode.B))
             {
                 if (backPackUIManager != null)
@@ -50,12 +51,21 @@ public class PlayerMovement : MonoBehaviour
                     backPackUIManager.ToggleBackPackUI();
                 }
             }
+
+            // æ£€æµ‹ N é”®æŒ‰ä¸‹ï¼Œåˆ‡æ¢å…¬å‘Šæ  UI
+            if (Input.GetKeyDown(KeyCode.N))
+            {
+                if (noticeBoardManager!= null)
+                {
+                    noticeBoardManager.ToggleNoticeBoardUI();
+                }
+            }
         }
     }
 
     private void InspectSelectedItem()
     {
-        // Ê¹ÓÃÁ¢·½ÌåÇøÓò¼ì²â
+        // ä½¿ç”¨ç«‹æ–¹ä½“åŒºåŸŸæ£€æµ‹
         Item item = DetectItemInBox();
         if (item != null)
         {
@@ -71,45 +81,45 @@ public class PlayerMovement : MonoBehaviour
 
         if (movement.magnitude > 0.1f)
         {
-            // ¼ÆËãÄ¿±ê³¯Ïò
+            // è®¡ç®—ç›®æ ‡æœå‘
             Quaternion targetRotation = Quaternion.LookRotation(movement);
 
-            // ¸ù¾İ rotationSpeed Æ½»¬Ğı×ªµ½Ä¿±ê³¯Ïò
+            // æ ¹æ® rotationSpeed å¹³æ»‘æ—‹è½¬åˆ°ç›®æ ‡æœå‘
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
 
-        //  ĞŞ¸ÄÎªÊ¹ÓÃ Rigidbody ÒÆ¶¯£¬È·±£ÎïÀíÅö×²ÉúĞ§
+        //  ä¿®æ”¹ä¸ºä½¿ç”¨ Rigidbody ç§»åŠ¨ï¼Œç¡®ä¿ç‰©ç†ç¢°æ’ç”Ÿæ•ˆ
         Vector3 newPosition = rb.position + movement * speed * Time.deltaTime;
         rb.MovePosition(newPosition);
     }
 
     private void CheckInteractInput()
     {
-        // ¼ì²â°´ÏÂ E ¼ü
+        // æ£€æµ‹æŒ‰ä¸‹ E é”®
         if (Input.GetKeyDown(KeyCode.E))
         {
             if (carriedItem == null)
             {
-                TryPickUpItem(); // ³¢ÊÔ¼ñÆğµÀ¾ß
+                TryPickUpItem(); // å°è¯•æ¡èµ·é“å…·
             }
             else
             {
-                DropItem(); // ·ÅÏÂµÀ¾ß
+                DropItem(); // æ”¾ä¸‹é“å…·
             }
         }
     }
 
     private void TryPickUpItem()
     {
-        // Ê¹ÓÃÁ¢·½ÌåÇøÓò¼ì²â
+        // ä½¿ç”¨ç«‹æ–¹ä½“åŒºåŸŸæ£€æµ‹
         Item item = DetectItemInBox();
         if (item != null && !item.isPickedUp)
         {
             carriedItem = item;
             item.isPickedUp = true;
-            PickUpItem(item); // ¼ñÆğµÀ¾ß
+            PickUpItem(item); // æ¡èµ·é“å…·
 
-            // Í¨ÖªÎïÌåÈ¡Ïû¸ßÁÁ
+            // é€šçŸ¥ç‰©ä½“å–æ¶ˆé«˜äº®
             Item highlightItem = item.GetComponent<Item>();
             if (highlightItem != null)
             {
@@ -120,35 +130,35 @@ public class PlayerMovement : MonoBehaviour
 
     private Item DetectItemInBox()
     {
-        // ¶¨ÒåÁ¢·½ÌåÖĞĞÄµÄÆ«ÒÆ£¨Íæ¼ÒÇ°·½ 0.5f ´¦£©
+        // å®šä¹‰ç«‹æ–¹ä½“ä¸­å¿ƒçš„åç§»ï¼ˆç©å®¶å‰æ–¹ 0.5f å¤„ï¼‰
         Vector3 boxCenter = transform.position + transform.forward * 0.5f;
 
-        // ¼ì²âÁ¢·½ÌåÇøÓòÄÚµÄÎïÆ·
+        // æ£€æµ‹ç«‹æ–¹ä½“åŒºåŸŸå†…çš„ç‰©å“
         Collider[] hitColliders = Physics.OverlapBox(boxCenter, new Vector3(selectDistance, selectDistance, 0.5f), transform.rotation);
         foreach (var hitCollider in hitColliders)
         {
             Item item = hitCollider.GetComponent<Item>();
             if (item != null)
             {
-                return item; // ·µ»ØµÚÒ»¸ö¼ì²âµ½µÄÎïÆ·
+                return item; // è¿”å›ç¬¬ä¸€ä¸ªæ£€æµ‹åˆ°çš„ç‰©å“
             }
         }
-        return null; // Èç¹ûÃ»ÓĞ¼ì²âµ½ÎïÆ·£¬·µ»Ø null
+        return null; // å¦‚æœæ²¡æœ‰æ£€æµ‹åˆ°ç‰©å“ï¼Œè¿”å› null
     }
 
     private void PickUpItem(Item item)
     {
-        // ½«µÀ¾ßÉèÖÃÎªÍæ¼ÒµÄ×Ó¶ÔÏó£¬²¢¹Ì¶¨ÔÚÊÖÉÏ
+        // å°†é“å…·è®¾ç½®ä¸ºç©å®¶çš„å­å¯¹è±¡ï¼Œå¹¶å›ºå®šåœ¨æ‰‹ä¸Š
         item.transform.SetParent(holdPosition);
-        item.transform.localPosition = Vector3.zero; // ¹Ì¶¨ÔÚÊÖÉÏ
-        item.transform.localRotation = Quaternion.identity; // ÖØÖÃĞı×ª
+        item.transform.localPosition = Vector3.zero; // å›ºå®šåœ¨æ‰‹ä¸Š
+        item.transform.localRotation = Quaternion.identity; // é‡ç½®æ—‹è½¬
 
-        // ½ûÓÃÎïÀí£¨Èç¹ûĞèÒª£©
+        // ç¦ç”¨ç‰©ç†ï¼ˆå¦‚æœéœ€è¦ï¼‰
         Rigidbody rb = item.GetComponent<Rigidbody>();
         if (rb != null)
         {
             rb.isKinematic = true;
-            rb.detectCollisions = false; // ÆôÓÃÅö×²¼ì²â
+            rb.detectCollisions = false; // å¯ç”¨ç¢°æ’æ£€æµ‹
         }
     }
 
@@ -157,27 +167,30 @@ public class PlayerMovement : MonoBehaviour
         if (carriedItem != null)
         {
             carriedItem.isPickedUp = false;
-            carriedItem.transform.SetParent(null); // »Ö¸´Îª¶ÀÁ¢¶ÔÏó
+            carriedItem.transform.SetParent(null); // æ¢å¤ä¸ºç‹¬ç«‹å¯¹è±¡
 
-            // ÆôÓÃÎïÀí£¨Èç¹ûĞèÒª£©
+            // å¯ç”¨ç‰©ç†ï¼ˆå¦‚æœéœ€è¦ï¼‰
             Rigidbody rb = carriedItem.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.isKinematic = false;
-                rb.detectCollisions = true; // ÆôÓÃÅö×²¼ì²â
+                rb.detectCollisions = true; // å¯ç”¨ç¢°æ’æ£€æµ‹
             }
+            carriedItem.Deselect();
+            carriedItem.UpdateHighlightState(); // é‡æ–°æ£€æŸ¥ç™½è‰²é«˜äº®çŠ¶æ€
 
-            carriedItem = null; // Çå¿Õµ±Ç°ÄÃÆğµÄµÀ¾ß
+
+            carriedItem = null; // æ¸…ç©ºå½“å‰æ‹¿èµ·çš„é“å…·
         }
     }
 
-    // ÔÚ³¡¾°ÖĞ»æÖÆÁ¢·½ÌåÇøÓòÒÔ±ãµ÷ÊÔ
+    // åœ¨åœºæ™¯ä¸­ç»˜åˆ¶ç«‹æ–¹ä½“åŒºåŸŸä»¥ä¾¿è°ƒè¯•
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Vector3 boxCenter = transform.position + transform.forward * 0.5f; // Óë´úÂëÖĞµÄÆ«ÒÆÒ»ÖÂ
+        Vector3 boxCenter = transform.position + transform.forward * 0.5f; // ä¸ä»£ç ä¸­çš„åç§»ä¸€è‡´
         Gizmos.matrix = Matrix4x4.TRS(boxCenter, transform.rotation, Vector3.one);
-        Gizmos.DrawWireCube(Vector3.zero, new Vector3(selectDistance * 2, selectDistance * 2, 1f)); // ³¤ 1f µÄÁ¢·½Ìå
+        Gizmos.DrawWireCube(Vector3.zero, new Vector3(selectDistance * 2, selectDistance * 2, 1f)); // é•¿ 1f çš„ç«‹æ–¹ä½“
     }
 
     public void PauseInput()

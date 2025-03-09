@@ -86,6 +86,8 @@ public class BackPackManager : MonoBehaviour
                 fragment.isUnlocked = true;
                 Debug.Log($"记忆片段 {fragment.memoryId} 已解锁！");
                 // 此处可以调用触发动画的接口，例如 TriggerMemoryAnimation(fragment.memoryId);
+
+                CutSceneManager.Instance.PlayMemoryVideoDelayed(fragment.memoryId);
             }
         }
     }
