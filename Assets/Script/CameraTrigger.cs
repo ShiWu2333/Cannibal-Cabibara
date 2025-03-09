@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Playables;
 
 public class CameraTrigger : MonoBehaviour
 {
+    public PlayableDirector timeline; // 绑定你的 Timeline 组件
     public Transform cameraCentre; // 目标视角
     public float stayDuration = 2.0f; // 停留时间
     private bool hasTriggered = false; // 是否已经触发过
@@ -16,6 +18,7 @@ public class CameraTrigger : MonoBehaviour
             if (cameraController != null)
             {
                 cameraController.SetTarget(cameraCentre, stayDuration);
+                timeline.Play(); // 播放 Timeline
             }
             else
             {

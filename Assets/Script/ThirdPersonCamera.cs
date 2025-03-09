@@ -14,6 +14,9 @@ public class ThirdPersonCamera : MonoBehaviour
     {
         defaultTarget = target; // 记录默认的目标（玩家）
         lockedRotation = transform.rotation; // 记录初始相机旋转
+
+        // 监听玩家被抓事件
+        PoliceAI.OnPlayerCaught += HandlePlayerCaught;
     }
 
     void LateUpdate()
@@ -66,5 +69,17 @@ public class ThirdPersonCamera : MonoBehaviour
         }
 
         target = defaultTarget; // 恢复为默认目标（玩家）
+    }
+
+    private void HandlePlayerCaught(Transform policeTransform)
+    {
+        Debug.Log("相机切换到警察视角！");
+        SetTarget(policeTransform, 2f); // 设定相机目标为警察，并在1秒后切换回玩家
+    }
+
+    private void OnDestroy()
+    {
+        // 取消事件监听，防止错误
+        PoliceAI.OnPlayerCaught -= HandlePlayerCaught;
     }
 }

@@ -7,6 +7,7 @@ public class BubbleController : MonoBehaviour
     public GameObject bubbleCanvas; // 气泡 UI
     public Image bubbleIcon; // 气泡内部的图标 (Display Image)
     private BubbleTrigger currentTrigger = null; // 记录当前触发的Trigger
+    public float delayTime;
 
     void Start()
     {
@@ -28,7 +29,7 @@ public class BubbleController : MonoBehaviour
     {
         if (currentTrigger == null && bubbleCanvas != null && bubbleIcon != null) // 确保对象不为空
         {
-            StartCoroutine(ShowBubbleWithDelay(newIcon, 1.0f));
+            StartCoroutine(ShowBubbleWithDelay(newIcon, delayTime));
             currentTrigger = trigger;
         }
     }
@@ -37,7 +38,7 @@ public class BubbleController : MonoBehaviour
     {
         if (currentTrigger == trigger)
         {
-            StartCoroutine(HideBubbleWithDelay(1.0f));
+            StartCoroutine(HideBubbleWithDelay(delayTime));
             currentTrigger = null;
         }
     }
