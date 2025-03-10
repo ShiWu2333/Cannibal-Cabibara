@@ -6,13 +6,13 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 5f;
     public float rotationSpeed = 500f;
     public float selectDistance = 0.5f; // 选择范围的半边长
-    private Vector2 move;
+    public Vector2 move;
     public bool pauseInput;
 
     [SerializeField] private Transform holdPosition;
     [SerializeField] private BackPackUIManager backPackUIManager;
     [SerializeField] private NoticeBoardManager noticeBoardManager;
-    private Item carriedItem;
+    public Item carriedItem;
 
     public ItemInspection itemInspection; // 检视功能脚本
     private Rigidbody rb; // 添加 Rigidbody
@@ -117,7 +117,11 @@ public class PlayerMovement : MonoBehaviour
         {
             carriedItem = item;
             item.isPickedUp = true;
-            PickUpItem(item); // 捡起道具
+
+            // 触发 PickUp 动画
+            GetComponent<PlayerStateManager>().TriggerPickUpAnimation();
+
+            PickUpItem(item); // 执行拾取操作
 
             // 通知物体取消高亮
             Item highlightItem = item.GetComponent<Item>();
@@ -127,6 +131,7 @@ public class PlayerMovement : MonoBehaviour
             }
         }
     }
+
 
     private Item DetectItemInBox()
     {
