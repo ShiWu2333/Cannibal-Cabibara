@@ -28,9 +28,13 @@ public class BackPackUIManager : MonoBehaviour
     [Header("UI References")]
     public GameObject backPackPanel; // 背包整体面板，方便切换显示
     public GameObject backpackIcon; //背包icon
+    public GameObject inspectionIcon; //检视icon
+    public GameObject interactionIcon; //抓取icon
     public Button backButton;
     public Button prevPageButton; // 上一页按钮
     public Button nextPageButton; // 下一页按钮
+    public GameObject page1; // 第一页 GameObject
+    public GameObject page2; // 第二页 GameObject
 
     [Tooltip("手动指定每个道具ID对应的UI Image。")]
     public List<ItemIDToImage> itemIDToImages; // 存储“道具ID -> UI格子”的对应关系
@@ -80,6 +84,8 @@ public class BackPackUIManager : MonoBehaviour
 
         backPackPanel.SetActive(false);
         backpackIcon.SetActive(true);
+        inspectionIcon.SetActive(true);
+        interactionIcon.SetActive(true);
         UpdateBackPackUI();
     }
 
@@ -96,7 +102,12 @@ public class BackPackUIManager : MonoBehaviour
     {
         currentPage += direction;
         currentPage = Mathf.Clamp(currentPage, 1, 2);
+
+        page1.SetActive(currentPage == 1);
+        page2.SetActive(currentPage == 2);
+
         UpdateBackPackUI();
+        Debug.Log("当前页数: " + currentPage);
     }
 
     /// <summary>
@@ -139,7 +150,6 @@ public class BackPackUIManager : MonoBehaviour
             {
                 // ✅ 这个回忆碎片属于当前页，显示它
                 memoryMapping.imageSlot.gameObject.SetActive(true);
-                memoryMapping.memoryButton.gameObject.SetActive(true);
 
                 bool unlocked = BackPackManager.Instance.IsMemoryFragmentUnlocked(memoryMapping.memoryID);
                 Color imageColor = memoryMapping.imageSlot.color;
@@ -165,27 +175,22 @@ public class BackPackUIManager : MonoBehaviour
                 else
                 {
                     // ❌ 未解锁：不显示图片，锁出现，禁用按钮
+                  
                     memoryMapping.imageSlot.sprite = null;
                     memoryMapping.memoryButton.interactable = false;
                     memoryMapping.lockImage.SetActive(true);
                     imageColor.a = 0; // **让图片完全透明**
                 }
-                // **彻底移除 onClick 事件，防止误触**
-                memoryMapping.memoryButton.onClick.RemoveAllListeners();   
+           
                 memoryMapping.imageSlot.color = imageColor;
 
                 if (unlocked)
                 {
                     int memoryId = memoryMapping.memoryID;
-                    memoryMapping.memoryButton.onClick.AddListener(() => PlayMemory(memoryId));
+                    
                 }
             }
-            else
-            {
-                // ❌ 这个回忆碎片不在当前页，隐藏它
-                memoryMapping.imageSlot.gameObject.SetActive(false);
-                memoryMapping.memoryButton.gameObject.SetActive(false);
-            }
+          
         }
 
         //  更新翻页按钮状态**
@@ -204,7 +209,16 @@ public class BackPackUIManager : MonoBehaviour
         bool isActive = backPackPanel.activeSelf;
         backPackPanel.SetActive(!isActive);
         backpackIcon.SetActive(isActive);
+        inspectionIcon.SetActive(isActive);
+        interactionIcon.SetActive(isActive);
 
+        if (!isActive) // 只有当背包被打开时才重置页数
+        {
+            currentPage = 1;
+            page1.SetActive(true);
+            page2.SetActive(false);
+            UpdateBackPackUI(); // 确保 UI 立即更新
+        }
     }
 }
 

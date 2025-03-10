@@ -1,100 +1,153 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
+using System.Collections;
 
 public class ItemInspection : MonoBehaviour
 {
-    public GameObject inspectionPanel; // ¼ìÊÓ´°¿ÚµÄ UI Panel
-    public RawImage itemDisplay; // ÓÃÓÚÏÔÊ¾ 3D Ä£ĞÍµÄ RawImage
-    public Camera itemCamera; // ÓÃÓÚäÖÈ¾ 3D Ä£ĞÍµÄÏà»ú
+    public GameObject inspectionPanel; // æ£€è§†çª—å£çš„ UI Panel
+    public RawImage itemDisplay; // ç”¨äºæ˜¾ç¤º 3D æ¨¡å‹çš„ RawImage
+    public Camera itemCamera; // ç”¨äºæ¸²æŸ“ 3D æ¨¡å‹çš„ç›¸æœº
     public RenderTexture itemRenderTexture; // Render Texture
+    public Button closeButton;
 
-    private GameObject currentItemModel; // µ±Ç°Ñ¡ÖĞµÄÎïÆ·Ä£ĞÍ
-    private GameObject inspectedModel; // µ±Ç°¼ìÊÓµÄÄ£ĞÍ¸±±¾
-    private bool isInspecting = false; // ÊÇ·ñÕıÔÚ¼ìÊÓ
-    private Vector3 lastMousePosition; // ÉÏÒ»Ö¡µÄÊó±êÎ»ÖÃ
+    private GameObject currentItemModel; // å½“å‰é€‰ä¸­çš„ç‰©å“æ¨¡å‹
+    private GameObject inspectedModel; // å½“å‰æ£€è§†çš„æ¨¡å‹å‰¯æœ¬
+    public bool isInspecting = false; // æ˜¯å¦æ­£åœ¨æ£€è§†
+    public bool canToggle = true; // **æ·»åŠ å˜é‡æ¥é˜²æ­¢åŒä¸€å¸§è§¦å‘ä¸¤æ¬¡**
+    private Vector3 lastMousePosition; // ä¸Šä¸€å¸§çš„é¼ æ ‡ä½ç½®
+
+    public GameObject backpackIcon; //èƒŒåŒ…icon
+    public GameObject inspectionIcon; //æ£€è§†icon
+    public GameObject interactionIcon; //æŠ“å–icon
+
+    
+
 
     private void Start()
     {
-        // ³õÊ¼Òş²Ø¼ìÊÓ´°¿Ú
+        // åˆå§‹éšè—æ£€è§†çª—å£
         inspectionPanel.SetActive(false);
         itemCamera.gameObject.SetActive(false);
 
-        // ÉèÖÃ Camera µÄ Target Texture
+        // è®¾ç½® Camera çš„ Target Texture
         itemCamera.targetTexture = itemRenderTexture;
 
-        // ÉèÖÃ RawImage µÄ Texture
+        // è®¾ç½® RawImage çš„ Texture
         itemDisplay.texture = itemRenderTexture;
+
+        if (closeButton != null)
+        {
+            closeButton.onClick.AddListener(CloseInspection);
+        }
     }
 
     private void Update()
     {
-        // Èç¹ûÕıÔÚ¼ìÊÓ£¬ÔÊĞíĞı×ªÄ£ĞÍ
+        // å¦‚æœæ­£åœ¨æ£€è§†ï¼Œå…è®¸æ—‹è½¬æ¨¡å‹
         if (isInspecting)
         {
             RotateItemModel();
         }
 
-        // °´ÏÂ Esc ¼ü¹Ø±Õ¼ìÊÓ´°¿Ú
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (isInspecting && Input.GetKeyDown(KeyCode.Escape))
         {
             CloseInspection();
+            Debug.Log("Q has been pressed in ItemInspection - Closing");
         }
+
+        // æŒ‰ä¸‹ Q é”®å…³é—­æ£€è§†çª—å£
+        /*if (isInspecting && Input.GetKeyDown(KeyCode.Q))
+         {
+             CloseInspection();
+             Debug.Log("Q has been pressed in ItemInspection - Closing");
+         } */
     }
 
-    // ´ò¿ª¼ìÊÓ´°¿Ú
+    // æ‰“å¼€æ£€è§†çª—å£
     public void ToggleInspection()
     {
+        if (!canToggle) return; // **å¦‚æœåˆšåˆšè§¦å‘è¿‡ï¼Œä¸å…è®¸å†æ¬¡è§¦å‘**
+        canToggle = false; // **çŸ­æš‚ç¦ç”¨ Qï¼Œé˜²æ­¢åŒæ—¶è§¦å‘æ‰“å¼€ & å…³é—­**
+
+        //isInspecting = !isInspecting;
+
+        Debug.Log("ğŸ”„ ToggleInspection è¢«è°ƒç”¨ | isInspecting: " + isInspecting);
+
         if (isInspecting)
         {
+            Debug.Log("âŒ å…³é—­æ£€è§†æ¨¡å¼ - è°ƒç”¨ CloseInspection()");
             CloseInspection();
         }
         else
         {
+            Debug.Log("âœ… æ‰“å¼€æ£€è§†æ¨¡å¼ - è°ƒç”¨ OpenInspection()");
             OpenInspection();
         }
+
+        StartCoroutine(ResetToggleCooldown()); // **å¯åŠ¨å†·å´æ—¶é—´**
     }
 
-    // ´ò¿ª¼ìÊÓ´°¿Ú
+    private IEnumerator ResetToggleCooldown()
+    {
+        yield return new WaitForSeconds(0.1f); // **ç­‰å¾… 0.1 ç§’ï¼Œé˜²æ­¢åŒä¸€å¸§å†æ¬¡è§¦å‘**
+        canToggle = true;
+    }
+
+    // æ‰“å¼€æ£€è§†çª—å£
     private void OpenInspection()
     {
+        Debug.Log("æ‰“å¼€é¢æ¿äº†");
+        isInspecting = true;
         if (currentItemModel == null) return;
 
-        // ¸´ÖÆµ±Ç°Ñ¡ÖĞµÄÎïÆ·Ä£ĞÍ
+        // å¤åˆ¶å½“å‰é€‰ä¸­çš„ç‰©å“æ¨¡å‹
         inspectedModel = Instantiate(currentItemModel);
 
-        // ½ûÓÃ¸´ÖÆµÄÄ£ĞÍµÄ Rigidbody
+        // ç¦ç”¨å¤åˆ¶çš„æ¨¡å‹çš„ Rigidbody
         Rigidbody rb = inspectedModel.GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.isKinematic = true; // ½ûÓÃÎïÀíÄ£Äâ
+            rb.isKinematic = true; // ç¦ç”¨ç‰©ç†æ¨¡æ‹Ÿ
         }
 
-        // µİ¹é½ûÓÃ¸´ÖÆµÄÄ£ĞÍ¼°Æä×Ó¶ÔÏóµÄ Outline ×é¼ş
+        // é€’å½’ç¦ç”¨å¤åˆ¶çš„æ¨¡å‹åŠå…¶å­å¯¹è±¡çš„ Outline ç»„ä»¶
         DisableOutlineRecursively(inspectedModel);
 
-        // ¼ÆËãÄ£ĞÍµÄÖĞĞÄµã
+        // è®¡ç®—æ¨¡å‹çš„ä¸­å¿ƒç‚¹
         Renderer renderer = inspectedModel.GetComponent<Renderer>();
         if (renderer != null)
         {
-            Vector3 center = renderer.bounds.center; // »ñÈ¡Ä£ĞÍµÄ¼¸ºÎÖĞĞÄ
+            Vector3 center = renderer.bounds.center; // è·å–æ¨¡å‹çš„å‡ ä½•ä¸­å¿ƒ
             inspectedModel.transform.position = itemCamera.transform.position + itemCamera.transform.forward * 2f - center + inspectedModel.transform.position;
         }
 
-        // ÏÔÊ¾¼ìÊÓ´°¿Ú
+        // **ğŸ”¹ éšè— UI**
+        backpackIcon.SetActive(false);
+        inspectionIcon.SetActive(false);
+        interactionIcon.SetActive(false);
+
+        // æ˜¾ç¤ºæ£€è§†çª—å£
         inspectionPanel.SetActive(true);
         itemCamera.gameObject.SetActive(true);
 
-        isInspecting = true;
+        
     }
 
-    // ¹Ø±Õ¼ìÊÓ´°¿Ú
-    private void CloseInspection()
+    // å…³é—­æ£€è§†çª—å£
+    public void CloseInspection()
     {
-        // Òş²Ø¼ìÊÓ´°¿Ú
+        Debug.Log("é¢æ¿å…³é—­");
+        isInspecting = false; // **å…ˆè®¾ç½® isInspectingï¼Œç¡®ä¿ UI é€»è¾‘æ­£ç¡®**
+        // éšè—æ£€è§†çª—å£
         inspectionPanel.SetActive(false);
         itemCamera.gameObject.SetActive(false);
 
-        // Ïú»Ù¸´ÖÆµÄÄ£ĞÍ
+        // é‡æ–°æ˜¾ç¤º UI
+        backpackIcon.SetActive(true);
+        inspectionIcon.SetActive(true);
+        interactionIcon.SetActive(true);
+
+        // é”€æ¯å¤åˆ¶çš„æ¨¡å‹
         if (inspectedModel != null)
         {
             Destroy(inspectedModel);
@@ -105,60 +158,58 @@ public class ItemInspection : MonoBehaviour
             Item item = currentItemModel.GetComponent<Item>();
             if (item != null)
             {
-                item.Deselect(); // È¡ÏûÑ¡ÖĞ
-                item.RemoveHighlight(); // È¡Ïû¸ßÁÁ£¬ÈÃ Update() ÖØĞÂ¼ì²â
+                item.Deselect(); // å–æ¶ˆé€‰ä¸­
+                item.UpdateHighlightState(); // ğŸ”¹ ç¡®ä¿ç™½è‰²é«˜äº®ç«‹å³ç”Ÿæ•ˆ
             }
         }
-
-        isInspecting = false;
     }
 
-    // Ğı×ªÎïÆ·Ä£ĞÍ
+    // æ—‹è½¬ç‰©å“æ¨¡å‹
     private void RotateItemModel()
     {
-        if (Input.GetMouseButton(0)) // °´×¡Êó±ê×ó¼ü
+        if (Input.GetMouseButton(0)) // æŒ‰ä½é¼ æ ‡å·¦é”®
         {
             Vector3 delta = Input.mousePosition - lastMousePosition;
 
-            // »ñÈ¡Ä£ĞÍµÄ¼¸ºÎÖĞĞÄ
+            // è·å–æ¨¡å‹çš„å‡ ä½•ä¸­å¿ƒ
             Renderer renderer = inspectedModel.GetComponent<Renderer>();
             if (renderer != null)
             {
-                Vector3 center = renderer.bounds.center; // ¶¯Ì¬¼ÆËã¼¸ºÎÖĞĞÄ
+                Vector3 center = renderer.bounds.center; // åŠ¨æ€è®¡ç®—å‡ ä½•ä¸­å¿ƒ
 
-                // Î§ÈÆÄ£ĞÍµÄ¼¸ºÎÖĞĞÄĞı×ª
-                inspectedModel.transform.RotateAround(center, Vector3.up, -delta.x * 0.2f); // Ë®Æ½Ğı×ª
-                inspectedModel.transform.RotateAround(center, Vector3.right, delta.y * 0.2f); // ´¹Ö±Ğı×ª
+                // å›´ç»•æ¨¡å‹çš„å‡ ä½•ä¸­å¿ƒæ—‹è½¬
+                inspectedModel.transform.RotateAround(center, Vector3.up, -delta.x * 0.2f); // æ°´å¹³æ—‹è½¬
+                inspectedModel.transform.RotateAround(center, Vector3.right, delta.y * 0.2f); // å‚ç›´æ—‹è½¬
             }
         }
 
         lastMousePosition = Input.mousePosition;
     }
 
-    // µİ¹é½ûÓÃ Outline ×é¼ş
+    // é€’å½’ç¦ç”¨ Outline ç»„ä»¶
     private void DisableOutlineRecursively(GameObject obj)
     {
-        // ½ûÓÃµ±Ç°¶ÔÏóµÄ Outline ×é¼ş
+        // ç¦ç”¨å½“å‰å¯¹è±¡çš„ Outline ç»„ä»¶
         Outline outline = obj.GetComponent<Outline>();
         if (outline != null)
         {
-            outline.enabled = false; // ½ûÓÃ Outline
-            // Destroy(outline); // »òÕßÖ±½ÓÒÆ³ı Outline ×é¼ş
+            outline.enabled = false; // ç¦ç”¨ Outline
+            // Destroy(outline); // æˆ–è€…ç›´æ¥ç§»é™¤ Outline ç»„ä»¶
         }
 
-        // µİ¹é½ûÓÃËùÓĞ×Ó¶ÔÏóµÄ Outline ×é¼ş
+        // é€’å½’ç¦ç”¨æ‰€æœ‰å­å¯¹è±¡çš„ Outline ç»„ä»¶
         foreach (Transform child in obj.transform)
         {
             DisableOutlineRecursively(child.gameObject);
         }
     }
 
-    // ÉèÖÃµ±Ç°Ñ¡ÖĞµÄÎïÆ·Ä£ĞÍ
+    // è®¾ç½®å½“å‰é€‰ä¸­çš„ç‰©å“æ¨¡å‹
     public void SetItemModel(GameObject itemModel)
     {
         if (itemModel != null)
         {
-            currentItemModel = itemModel; // Ö»ÔÚÓĞÎïÆ·Ê±¸üĞÂ
+            currentItemModel = itemModel; // åªåœ¨æœ‰ç‰©å“æ—¶æ›´æ–°
         }
     }
 }
