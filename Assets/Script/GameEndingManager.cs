@@ -30,7 +30,7 @@ public class GameEndingManager : MonoBehaviour
     public void RecordDestroyedEvidence()
     {
         destroyedPoliceEvidenceCount++;
-        Debug.Log($"证据销毁进度: {destroyedPoliceEvidenceCount} / 5");
+        Debug.Log($"证据销毁进度: {destroyedPoliceEvidenceCount} / 4");
     }
 
     // **触发游戏结局**
@@ -43,7 +43,7 @@ public class GameEndingManager : MonoBehaviour
 
         endingPanel.SetActive(true); // ✅ 显示结局界面
 
-        if (destroyedPoliceEvidenceCount >= 5)
+        if (destroyedPoliceEvidenceCount >= 3)
         {
             Debug.Log("🎉 触发 Good Ending！");
             StartCoroutine(ShowGoodEnding());

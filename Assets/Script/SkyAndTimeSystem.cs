@@ -35,20 +35,20 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentTime += Time.deltaTime;
         Debug.Log("currentTime: " + currentTime);
 
-        if (currentTime < 6f)  // 0-6秒 = 白天
+        if (currentTime < 180f)  // 3分钟 = 白天
         {
             RenderSettings.skybox = daySkybox;
             sunLight.intensity = 1.0f;
         }
 
-        else if (currentTime >= 6f && currentTime < 13f)
+        else if (currentTime >= 180f && currentTime < 240f)
         {
-            float blendFactor = (currentTime - 6f) / 7f;
+            float blendFactor = (currentTime - 180f) / 60f;
             sunLight.intensity = Mathf.Lerp(1.0f, 0f, blendFactor);
             RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, 0.3f, blendFactor);
         }
 
-        else if (currentTime >= 13f && !isNightSequenceStarted)
+        else if (currentTime >= 240f && !isNightSequenceStarted)
         {
             StartCoroutine(NightSequence());
             isNightSequenceStarted = true;
@@ -86,7 +86,7 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentDay++;
 
         // 如果是第 7 天（索引 6），根据数值触发结局（还未设定）
-        if (currentDay == 7)
+        if (currentDay == 5)
         {
            GameEndingManager gameEndingManager = FindObjectOfType<GameEndingManager>();
         if (gameEndingManager != null)
