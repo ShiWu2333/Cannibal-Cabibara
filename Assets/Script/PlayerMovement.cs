@@ -98,6 +98,7 @@ public class PlayerMovement : MonoBehaviour
         // 检测按下 E 键
         if (Input.GetKeyDown(KeyCode.E))
         {
+            Debug.Log("E being pressed.");
             if (carriedItem == null)
             {
                 TryPickUpItem(); // 尝试捡起道具
@@ -119,7 +120,7 @@ public class PlayerMovement : MonoBehaviour
             item.isPickedUp = true;
 
             // 触发 PickUp 动画
-            GetComponent<PlayerStateManager>().TriggerPickUpAnimation();
+            //GetComponent<PlayerStateManager>().TriggerPickUpAnimation();
 
             PickUpItem(item); // 执行拾取操作
 

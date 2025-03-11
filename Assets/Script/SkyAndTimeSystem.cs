@@ -33,7 +33,7 @@ public class SkyAndTimeSystem : MonoBehaviour
     void Update()
     {
         currentTime += Time.deltaTime;
-        Debug.Log("currentTime: " + currentTime);
+        //Debug.Log("currentTime: " + currentTime);
 
         if (currentTime < 180f)  // 3分钟 = 白天
         {
