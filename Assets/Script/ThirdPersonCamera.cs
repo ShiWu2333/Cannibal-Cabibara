@@ -9,6 +9,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private Transform defaultTarget; // 记录默认目标（玩家）
     private Quaternion lockedRotation; // 记录初始相机旋转
     public bool lockRotation = true; // 是否锁定相机旋转
+    public float instantTeleportDistance = 500f; // 超过此距离相机瞬移
 
     void Start()
     {
@@ -24,7 +25,16 @@ public class ThirdPersonCamera : MonoBehaviour
         if (target != null)
         {
             Vector3 desiredPosition = target.position + offset;
-            transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * transitionSpeed);
+
+            // **距离检测：如果相机距离目标超过 `instantTeleportDistance`，直接瞬移**
+            if (Vector3.Distance(transform.position, desiredPosition) > instantTeleportDistance)
+            {
+                transform.position = desiredPosition; // 直接瞬移
+            }
+            else
+            {
+                transform.position = Vector3.Lerp(transform.position, desiredPosition, Time.deltaTime * transitionSpeed);
+            }
 
             if (!lockRotation)
             {
@@ -74,7 +84,7 @@ public class ThirdPersonCamera : MonoBehaviour
     private void HandlePlayerCaught(Transform policeTransform)
     {
         Debug.Log("相机切换到警察视角！");
-        SetTarget(policeTransform, 2f); // 设定相机目标为警察，并在1秒后切换回玩家
+        SetTarget(policeTransform, 2f); // 设定相机目标为警察，并在2秒后切换回玩家
     }
 
     private void OnDestroy()
