@@ -6,7 +6,7 @@ public class TeleportTrigger : MonoBehaviour
 {
     [SerializeField] private Transform teleportDestination; // 传送目标点
     [SerializeField] private GameObject loadingScreen; // Loading UI
-    [SerializeField] private float loadingTime = 2f; // Loading 屏幕持续时间
+    [SerializeField] private float loadingTime = 1f; // Loading 屏幕持续时间
 
     private void OnTriggerEnter(Collider other)
     {
