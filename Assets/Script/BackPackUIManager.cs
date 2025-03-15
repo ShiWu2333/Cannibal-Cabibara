@@ -25,6 +25,8 @@ public class MemoryIDToImage
 
 public class BackPackUIManager : MonoBehaviour
 {
+    public static BackPackUIManager Instance { get; private set; } // ✅ 确保 Singleton 存在
+
     [Header("UI References")]
     public GameObject backPackPanel; // 背包整体面板，方便切换显示
     public GameObject backpackIcon; //背包icon
@@ -47,10 +49,16 @@ public class BackPackUIManager : MonoBehaviour
     private int totalPages = 2; // 总页数
 
 
-
-    private void OnEnable()
+    private void Awake()
     {
-        
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void OnDisable()
@@ -94,6 +102,16 @@ public class BackPackUIManager : MonoBehaviour
         Debug.Log("播放回忆片段: " + memoryId);
         CutSceneManager.Instance.PlayMemoryVideo(memoryId);
     }
+
+    /// <summary>
+    /// 获取某个物品的收集 Sprite（给 ItemFlyToBackpack 用）
+    /// </summary>
+    public Sprite GetCollectedSpriteByItemID(int itemID)
+    {
+        var mapping = itemIDToImages.FirstOrDefault(m => m.itemID == itemID);
+        return mapping != null ? mapping.collectedSprite : null;
+    }
+
 
     /// <summary>
     /// 切换到上一页 / 下一页
