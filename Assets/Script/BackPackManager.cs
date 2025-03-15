@@ -24,6 +24,10 @@ public class BackPackManager : MonoBehaviour
     public delegate void OnBackPackUpdated();
     public event OnBackPackUpdated OnBackPackChanged;
 
+    [Header("Audio Settings")]
+    public AudioSource audioSource; // ✅ 音效播放器
+    public AudioClip unlockSound; // ✅ 叮的音效
+
     private void Awake()
     {
         if (Instance == null)
@@ -51,6 +55,9 @@ public class BackPackManager : MonoBehaviour
         collectedItems.Add(item);
         item.isPickedUp = true;
         Debug.Log($"收集到线索：{item.itemName}");
+
+        // ✅ 播放音效
+        PlayUnlockSound();
 
         // 检查每个记忆片段是否满足解锁条件
         CheckMemoryFragmentsUnlock();
@@ -87,9 +94,31 @@ public class BackPackManager : MonoBehaviour
                 Debug.Log($"记忆片段 {fragment.memoryId} 已解锁！");
                 // 此处可以调用触发动画的接口，例如 TriggerMemoryAnimation(fragment.memoryId);
 
+                // ✅ 播放音效
+                PlayUnlockSound();
+
                 CutSceneManager.Instance.PlayMemoryVideoDelayed(fragment.memoryId);
             }
         }
+    }
+
+    /// <summary>
+    /// 播放“叮”的音效
+    /// </summary>
+    public void PlayUnlockSound()
+    {
+        if (audioSource != null && unlockSound != null)
+        {
+            audioSource.PlayOneShot(unlockSound);
+        }
+    }
+
+    /// <summary>
+    /// ✅ 检查 `itemID` 是否是玩家收集过的物品
+    /// </summary>
+    public bool IsCollectedItem(int itemID)
+    {
+        return collectedItems.Exists(item => item.itemID == itemID);
     }
 
     /// <summary>

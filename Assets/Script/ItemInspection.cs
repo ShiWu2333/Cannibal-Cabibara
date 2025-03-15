@@ -148,30 +148,43 @@ public class ItemInspection : MonoBehaviour
         inspectionIcon.SetActive(true);
         interactionIcon.SetActive(true);
 
-        // ✅ 只有在 `currentInspectItem` 存在时，才播放飞行动画
-        if (currentInspectItem != null)
-        {
-            int itemID = currentInspectItem.itemID;
-            ItemFlyToBackpack.Instance.PlayItemFlyToBackpack(itemID);
-        }
+        // ✅ 让背包图标闪烁
+        FindObjectOfType<BackpackIconBlink>().StartBlinking();
 
         // 销毁复制的模型
-        if (inspectedModel != null)
-        {
-            Destroy(inspectedModel);
-        }
-
         if (currentItemModel != null)
         {
             Item item = currentItemModel.GetComponent<Item>();
             if (item != null)
             {
-                item.Deselect(); // 取消选中
-                item.UpdateHighlightState(); // 🔹 确保白色高亮立即生效
+                int itemID = item.itemID;
+
+                // ✅ **只有当 itemID 在 BackPackManager 里时，才播放音效 & 背包动画**
+                if (BackPackManager.Instance != null && BackPackManager.Instance.IsCollectedItem(itemID))
+                {
+                    Debug.Log($"🎯 物品 {itemID} 在背包中，播放解锁音效 & 背包动画！");
+
+                    // ✅ 播放解锁音效
+                    BackPackManager.Instance.PlayUnlockSound();
+
+                    // ✅ 让背包图标闪烁
+                    BackpackIconBlink blinkScript = backpackIcon.GetComponent<BackpackIconBlink>();
+                    if (blinkScript != null)
+                    {
+                        blinkScript.StartBlinking();
+                    }
+                }
+                else
+                {
+                    Debug.Log($"🚫 物品 {itemID} 不在背包中，不触发音效 & 背包动画");
+                }
+
+                // ✅ 取消选中 & 恢复高亮状态
+                item.Deselect();
+                item.UpdateHighlightState();
             }
         }
     }
-
     // 旋转物品模型
     private void RotateItemModel()
     {

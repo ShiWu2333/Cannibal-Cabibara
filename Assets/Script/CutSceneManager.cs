@@ -121,6 +121,22 @@ public class CutSceneManager : MonoBehaviour
 
         // 6. 淡出黑屏
         yield return StartCoroutine(FadeFromBlack(0.5f));  // ✅ 0.5 秒淡出
+
+        // ✅ **先确保背包图标是激活状态**
+        if (backpackIcon != null)
+        {
+            backpackIcon.SetActive(true);
+        }
+
+        //  7. 让背包图标闪烁
+        if (backpackIcon != null)
+        {
+            BackpackIconBlink blinkScript = backpackIcon.GetComponent<BackpackIconBlink>();
+            if (blinkScript != null)
+            {
+                blinkScript.StartBlinking();
+            }
+        }
     }
 
     private IEnumerator FadeToBlack(float duration)
