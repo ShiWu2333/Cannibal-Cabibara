@@ -20,7 +20,8 @@ public class ItemInspection : MonoBehaviour
     public GameObject inspectionIcon; //检视icon
     public GameObject interactionIcon; //抓取icon
 
-    
+    private Item currentInspectItem; // ✅ 当前正在检视的物品
+
 
 
     private void Start()
@@ -147,6 +148,13 @@ public class ItemInspection : MonoBehaviour
         inspectionIcon.SetActive(true);
         interactionIcon.SetActive(true);
 
+        // ✅ 只有在 `currentInspectItem` 存在时，才播放飞行动画
+        if (currentInspectItem != null)
+        {
+            int itemID = currentInspectItem.itemID;
+            ItemFlyToBackpack.Instance.PlayItemFlyToBackpack(itemID);
+        }
+
         // 销毁复制的模型
         if (inspectedModel != null)
         {
@@ -209,7 +217,8 @@ public class ItemInspection : MonoBehaviour
     {
         if (itemModel != null)
         {
-            currentItemModel = itemModel; // 只在有物品时更新
+            currentItemModel = itemModel; // ✅ 记录 3D 物体
+            currentInspectItem = itemModel.GetComponent<Item>(); // ✅ 获取 `Item` 组件
         }
     }
 }

@@ -14093,6 +14093,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: raincoat
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 6cbd0c2c24342fd418242a3c1b6215f1,
+        type: 3}
+      propertyPath: m_TagString
+      value: itwm
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -42495,6 +42500,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Paw
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0e376a809e959c4468d683b437474517,
+        type: 3}
+      propertyPath: m_TagString
+      value: itwm
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -53405,6 +53415,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: ring
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 0ea62fcb96d87f94e83d596e4b2c7f81,
+        type: 3}
+      propertyPath: m_TagString
+      value: itwm
+      objectReference: {fileID: 0}
     - target: {fileID: 3725102176391765030, guid: 0ea62fcb96d87f94e83d596e4b2c7f81,
         type: 3}
       propertyPath: m_Intensity
@@ -54325,6 +54340,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: fireaxe
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f06ad42cf041f624595ffa82b2fc37d3,
+        type: 3}
+      propertyPath: m_TagString
+      value: itwm
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -75563,6 +75583,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Old_Suitcase
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 9d5f3c8bbc4bbbe4eba807e8aa378c13,
+        type: 3}
+      propertyPath: m_TagString
+      value: itwm
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -83199,7 +83224,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 126
   m_CollisionDetection: 0
 --- !u!65 &1674997819
 BoxCollider:
@@ -89564,7 +89589,7 @@ MonoBehaviour:
   itemName: 
   itemID: 1
   itemIcon: {fileID: 0}
-  canBePickedUp: 1
+  canBePickedUp: 0
   isPoliceEvidence: 0
   fadeDuration: 0.5
   highlightColor: {r: 0, g: 0, b: 1, a: 1}
@@ -89603,7 +89628,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 122
   m_CollisionDetection: 0
 --- !u!65 &1795352894
 BoxCollider:
