@@ -59,8 +59,18 @@ public class ChiefAI : MonoBehaviour
     private void MoveTo(Vector3 destination, float speed)
     {
         Vector3 direction = (destination - transform.position).normalized;
-        rb.MovePosition(transform.position + direction * speed * Time.deltaTime);
+
+        if (direction != Vector3.zero) // 确保方向不是 (0,0,0)
+        {
+            // 只修改 Y 轴的旋转，避免 NPC 倒下
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(direction.x, 0f, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+        }
+
+        rb.MovePosition(transform.position + direction * speed * Time.fixedDeltaTime);
     }
+
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -71,33 +81,45 @@ public class ChiefAI : MonoBehaviour
     }
 
     private IEnumerator HandlePlayerDetected()
+{
+    isPatrolling = false; // 停止巡逻
+    isEscaping = true; // 进入逃跑模式
+
+
+    // 显示受惊气泡
+    if (bubbleController != null && shockedBubbleIcon != null)
     {
-        isPatrolling = false; // 停止巡逻
-        isEscaping = true; // 进入逃跑模式
-
-        // 显示受惊气泡
-        if (bubbleController != null && shockedBubbleIcon != null)
-        {
-            bubbleController.ShowBubble(shockedBubbleIcon);
-        }
-
-        // 停留一小段时间表示受惊
-        yield return new WaitForSeconds(shockedDuration);
-
-        // 逃跑到安全点
-        while (Vector3.Distance(transform.position, safePoint.position) > 0.5f)
-        {
-            MoveTo(safePoint.position, escapeSpeed);
-            yield return null;
-        }
-
-        yield return new WaitForSeconds(1f); // 逃跑后稍作停留
-
-        // 在安全点附近随机巡逻
-        initialPosition = safePoint.position;
-        isEscaping = false;
-        isPatrolling = true;
-        StartCoroutine(Patrol()); // 重新进入巡逻模式
+        bubbleController.ShowBubble(shockedBubbleIcon);
     }
+
+    yield return new WaitForSeconds(shockedDuration); // 受惊停留
+
+    // 逃跑到安全点
+    while (Vector3.Distance(transform.position, safePoint.position) > 0.5f)
+    {
+        MoveTo(safePoint.position, escapeSpeed); // 确保使用 MoveTo()，保持正确朝向
+        yield return new WaitForFixedUpdate(); // 确保物理更新同步
+    }
+
+    yield return new WaitForSeconds(1f); // 逃跑后稍作停留
+
+    // 在安全点附近随机巡逻
+    initialPosition = safePoint.position;
+    isEscaping = false;
+    isPatrolling = true;
+    StartCoroutine(Patrol()); // 重新进入巡逻模式
+}
+
+    public bool IsWalking()
+    {
+        return isPatrolling || isEscaping; // 只要在巡逻或逃跑，就播放走路动画
+    }
+
+    public bool IsEscaping()
+    {
+        return isEscaping;
+    }
+
+
 }
 

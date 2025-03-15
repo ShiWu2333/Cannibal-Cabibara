@@ -120,4 +120,10 @@ public class PoliceAI : MonoBehaviour
         player.transform.position = respawnPoint.position;
         isChasing = false;
     }
+
+    public bool IsWalking()
+    {
+        return !isGuard && !isWaiting && !isChasing;
+    }
+
 }
