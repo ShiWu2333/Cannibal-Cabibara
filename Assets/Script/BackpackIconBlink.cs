@@ -8,6 +8,8 @@ public class BackpackIconBlink : MonoBehaviour
     public float blinkDuration = 4f; // ✅ 总共闪烁的时间（秒）
     public float blinkInterval = 0.5f; // ✅ 每次闪烁间隔
 
+    private Coroutine blinkCoroutine;
+
     private void Start()
     {
         if (backpackIcon == null)
@@ -21,7 +23,28 @@ public class BackpackIconBlink : MonoBehaviour
     /// </summary>
     public void StartBlinking()
     {
-        StartCoroutine(BlinkEffect());
+        if (blinkCoroutine != null)
+        {
+            StopCoroutine(blinkCoroutine);
+        }
+        blinkCoroutine = StartCoroutine(BlinkEffect());
+    }
+
+    public void StopBlinking()
+    {
+        if (blinkCoroutine != null)
+        {
+            StopCoroutine(blinkCoroutine);
+            blinkCoroutine = null;
+        }
+
+        // ✅ 退出背包时恢复 `alpha`
+        if (backpackIcon != null)
+        {
+            Color color = backpackIcon.color;
+            color.a = 1f; // **确保完全显示**
+            backpackIcon.color = color;
+        }
     }
 
     private IEnumerator BlinkEffect()
@@ -41,8 +64,15 @@ public class BackpackIconBlink : MonoBehaviour
 
             yield return new WaitForSeconds(blinkInterval);
         }
+        // ✅ 确保动画结束后 `alpha` 恢复正常
+        if (backpackIcon != null)
+        {
+            Color color = backpackIcon.color;
+            color.a = 1f;
+            backpackIcon.color = color;
+        }
 
-        // ✅ 结束后恢复正常
-        backpackIcon.color = new Color(backpackIcon.color.r, backpackIcon.color.g, backpackIcon.color.b, 1f);
+        blinkCoroutine = null;
     }
+
 }

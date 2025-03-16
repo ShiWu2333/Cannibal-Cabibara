@@ -37,6 +37,8 @@ public class BackPackUIManager : MonoBehaviour
     public Button nextPageButton; // 下一页按钮
     public GameObject page1; // 第一页 GameObject
     public GameObject page2; // 第二页 GameObject
+    public Button backpackIconButton; // ✅ 背包 Icon 作为按钮
+
 
     [Tooltip("手动指定每个道具ID对应的UI Image。")]
     public List<ItemIDToImage> itemIDToImages; // 存储“道具ID -> UI格子”的对应关系
@@ -72,6 +74,13 @@ public class BackPackUIManager : MonoBehaviour
     private void Start()
     {
         backButton.onClick.AddListener(ToggleBackPackUI);
+
+        // ✅ 让 `背包 Icon` 可以点击打开/关闭背包
+        if (backpackIconButton != null)
+        {
+            backpackIconButton.onClick.AddListener(ToggleBackPackUI);
+        }
+
         prevPageButton.onClick.AddListener(() => ChangePage(-1));
         nextPageButton.onClick.AddListener(() => ChangePage(1));
 
@@ -236,6 +245,15 @@ public class BackPackUIManager : MonoBehaviour
             page1.SetActive(true);
             page2.SetActive(false);
             UpdateBackPackUI(); // 确保 UI 立即更新
+        }
+        else
+        {
+            // ✅ 关闭 `背包 UI` 时，确保 `背包 Icon` 透明度恢复
+            BackpackIconBlink blinkScript = backpackIcon.GetComponent<BackpackIconBlink>();
+            if (blinkScript != null)
+            {
+                blinkScript.StopBlinking();
+            }
         }
     }
 }

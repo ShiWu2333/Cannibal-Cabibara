@@ -16,6 +16,10 @@ public class SkyAndTimeSystem : MonoBehaviour
     public Sprite[] calendarSpritesNormal; //  7 张无划线图片
     public Sprite[] calendarSpritesMarked; // 7 张划掉的图片
 
+    public AudioSource audioSource; // **音频组件**
+    public AudioClip pencilSound; // **铅笔划线音效**
+    public AudioClip snoringSound;
+
     private NoticeBoardManager noticeBoardManager;
     public int currentDay = 0;
 
@@ -35,20 +39,20 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentTime += Time.deltaTime;
         //Debug.Log("currentTime: " + currentTime);
 
-        if (currentTime < 180f)  // 3分钟 = 白天
+        if (currentTime < 150f)  // 2.30分钟 = 白天
         {
             RenderSettings.skybox = daySkybox;
             sunLight.intensity = 1.0f;
         }
 
-        else if (currentTime >= 180f && currentTime < 240f)
+        else if (currentTime >= 120f && currentTime < 150f)
         {
-            float blendFactor = (currentTime - 180f) / 60f;
+            float blendFactor = (currentTime - 120f) / 30f;
             sunLight.intensity = Mathf.Lerp(1.0f, 0f, blendFactor);
             RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, 0.3f, blendFactor);
         }
 
-        else if (currentTime >= 240f && !isNightSequenceStarted)
+        else if (currentTime >= 150f && !isNightSequenceStarted)
         {
             StartCoroutine(NightSequence());
             isNightSequenceStarted = true;
@@ -63,6 +67,11 @@ public class SkyAndTimeSystem : MonoBehaviour
     IEnumerator NightSequence()
     {
         yield return new WaitForSeconds(2f);
+
+        if (audioSource != null && snoringSound != null)
+        {
+            StartCoroutine(PlaySnoringFor7Seconds());
+        }
 
         capybaraSleepImage.gameObject.SetActive(true);
         capybaraSleepImage.canvasRenderer.SetAlpha(0f);
@@ -79,6 +88,13 @@ public class SkyAndTimeSystem : MonoBehaviour
         capybaraSleepImage.gameObject.SetActive(false);
 
         
+    }
+
+    private IEnumerator PlaySnoringFor7Seconds()
+    {
+        audioSource.PlayOneShot(snoringSound); // 🎵 播放音效
+        yield return new WaitForSeconds(7f); // ⏳ 等待 7 秒
+        audioSource.Stop(); // 🚫 停止播放
     }
 
     void NewDay()
@@ -120,6 +136,12 @@ public class SkyAndTimeSystem : MonoBehaviour
 
         yield return new WaitForSeconds(2f); // 2 秒后换成划掉的日历
 
+        if (audioSource != null && pencilSound != null)
+        {
+            StartCoroutine(PlayPencilSoundFor2Seconds());
+        }
+
+
         // ✅ 切换到 `calendarImageMarked`
         calendarImage.sprite = calendarSpritesMarked[currentDay];
 
@@ -136,5 +158,12 @@ public class SkyAndTimeSystem : MonoBehaviour
             noticeBoardManager.UpdateNoticeBoard();
             noticeBoardManager.ToggleNoticeBoardUI();
         }
+    }
+
+    private IEnumerator PlayPencilSoundFor2Seconds()
+    {
+        audioSource.PlayOneShot(pencilSound); // 🎵 播放音效
+        yield return new WaitForSeconds(2f); // ⏳ 等待 2 秒
+        audioSource.Stop(); // 🚫 停止播放
     }
 }
