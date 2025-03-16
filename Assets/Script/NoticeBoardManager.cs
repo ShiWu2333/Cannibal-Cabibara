@@ -79,7 +79,6 @@ public class NoticeBoardManager : MonoBehaviour
         Debug.Log("公告栏 " + (isActive ? "关闭" : "打开"));
     }
 
-
     // **每天更新公告栏（由 `SkyAndTimeSystem` 触发）**
     public void UpdateNoticeBoard()
     {
@@ -89,28 +88,29 @@ public class NoticeBoardManager : MonoBehaviour
         // **遍历所有公告栏 Image**
         for (int i = 0; i < dayNotices.Length; i++)
         {
-            // ✅ **跳过 Day 0 和 Day 5**
-            if (i == 0 || i == 5)
+            // ✅ **只有第 `2`、`4`、`5` 天显示公告（索引 `1, 3, 4`）**
+            if (i == 1 || i == 3 || i == 4) // Day 2、Day 4、Day 5
             {
-                dayNotices[i].gameObject.SetActive(false); // 这两天不公布线索
-                continue;
+                if (i <= currentDay) // 只有到这天及以后才会显示
+                {
+                    dayNotices[i].gameObject.SetActive(true); // ✅ 显示该天的公告
+
+                    if (destroyedEvidences.Contains(i))
+                    {
+                        evidenceImages[i].sprite = questionMarkSprite; // **证据销毁 → 显示 `?`**
+                    }
+                    else
+                    {
+                        evidenceImages[i].sprite = evidenceSprites[i]; // **证据未销毁 → 显示正常证据**
+                    }
+                }
             }
-
-            // ✅ 只显示 Day 1 ~ Day 4（索引 `1~4`）
-            if (i <= currentDay)
+            else
             {
-                dayNotices[i].gameObject.SetActive(true); // 显示该天的证据
-
-                if (destroyedEvidences.Contains(i))
-                {
-                    evidenceImages[i].sprite = questionMarkSprite; // **销毁 → 显示 `?`**
-                }
-                else
-                {
-                    evidenceImages[i].sprite = evidenceSprites[i]; // **未销毁 → 显示正常证据**
-                }
+                dayNotices[i].gameObject.SetActive(false); // ✅ 其他天不公布线索
             }
         }
+    
         // ✅ **更新 Map Image**
         if (mapImage != null && mapSprites.Length > currentDay)
         {
