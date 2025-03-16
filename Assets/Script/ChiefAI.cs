@@ -115,6 +115,13 @@ public class ChiefAI : MonoBehaviour
         return isPatrolling || isEscaping; // 只要在巡逻或逃跑，就播放走路动画
     }
 
+    public bool IsMoving()
+    {
+        // 只有当 NPC 在巡逻/逃跑并且 `Rigidbody` 速度不为 0 时才返回 `true`
+        return IsWalking() && rb.velocity.magnitude > 0.1f;
+    }
+
+
     public bool IsEscaping()
     {
         return isEscaping;
