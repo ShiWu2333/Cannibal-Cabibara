@@ -154,18 +154,33 @@ public class PlayerMovement : MonoBehaviour
 
     private void PickUpItem(Item item)
     {
-        // 将道具设置为玩家的子对象，并固定在手上
-        item.transform.SetParent(holdPosition);
-        item.transform.localPosition = Vector3.zero; // 固定在手上
-        item.transform.localRotation = Quaternion.identity; // 重置旋转
-
-        // 禁用物理（如果需要）
-        Rigidbody rb = item.GetComponent<Rigidbody>();
-        if (rb != null)
+        // **检查 canBePickedUp**
+        if (!item.canBePickedUp)
         {
-            rb.isKinematic = true;
-            rb.detectCollisions = false; // 启用碰撞检测
+            Debug.Log($"{item.itemName} 不能被拾取！");
+            return;
         }
+        else
+        {
+            // 将道具设置为玩家的子对象，并固定在手上
+            item.transform.SetParent(holdPosition);
+            item.transform.localPosition = Vector3.zero; // 固定在手上
+            item.transform.localRotation = Quaternion.identity; // 重置旋转
+
+            // 禁用物理（如果需要）
+            Rigidbody rb = item.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.isKinematic = true;
+                rb.detectCollisions = false; // 关闭碰撞检测，防止干扰
+            }
+
+            // **调用 Item 的 OnPickedUp() 方法**
+            item.OnPickedUp();
+
+            Debug.Log($"{item.itemName} 已被拾取");
+        }
+        
     }
 
     private void DropItem()

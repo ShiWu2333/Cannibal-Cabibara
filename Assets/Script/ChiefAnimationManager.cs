@@ -7,7 +7,6 @@ public class ChiefAnimationManager : MonoBehaviour
 
     private void Start()
     {
-
         if (animator == null)
         {
             Debug.LogError("Animator 组件未找到！");
@@ -20,19 +19,18 @@ public class ChiefAnimationManager : MonoBehaviour
 
     private void Update()
     {
-        if (chiefAI == null) return;
+        if (chiefAI == null || animator == null) return;
 
-        // 只更新 isWalking
-        animator.SetBool("isWalking", chiefAI.IsWalking());
+        bool isMoving = chiefAI.IsMoving();   // 现在使用 IsMoving()
+        animator.SetBool("isWalking", isMoving);
 
-        if (chiefAI.IsWalking())
+        if (isMoving)
         {
-            animator.speed = chiefAI.IsEscaping() ? 1.5f : 1.0f; // 逃跑时加速，巡逻时恢复
+            animator.speed = chiefAI.IsEscaping() ? 1.5f : 1.0f;
         }
         else
         {
-            animator.speed = 1.0f; // 停止移动时恢复默认
+            animator.speed = 1.0f;
         }
-
     }
 }
