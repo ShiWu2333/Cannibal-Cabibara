@@ -28,10 +28,6 @@ public class NoticeBoardManager : MonoBehaviour
     public Image mapImage; // 地图的 `Image` 组件
     public Sprite[] mapSprites; // 每天对应的 `Map Sprite`（6 天）
 
-    [Header("公告栏日历 UI")]
-    public Image calendarImage; // 公告栏日历 `Image`
-    public Sprite[] calendarSprites; // 每天对应的 `Calendar Sprite`
-
     private HashSet<int> destroyedEvidences = new HashSet<int>(); // 存储已销毁的证据
     private SkyAndTimeSystem skySystem; // 引用 `SkyAndTimeSystem`
 
@@ -125,13 +121,6 @@ public class NoticeBoardManager : MonoBehaviour
         else
         {
             Debug.LogWarning("❌ `calendarImage` 为空 或 `calendarSprites` 数组长度不足！");
-        }
-
-        // ✅ **更新公告栏的日历**
-        if (calendarImage != null && calendarSprites.Length > currentDay)
-        {
-            calendarImage.sprite = calendarSprites[currentDay]; // **每天更换日历**
-            Debug.Log($"📅 公告栏日历更新：Day {currentDay + 1}");
         }
 
         // ✅ **更新 Map Image**
