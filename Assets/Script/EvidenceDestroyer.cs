@@ -23,7 +23,20 @@ public class EvidenceDestroyer : MonoBehaviour
             if (item.isPoliceEvidence) // ✅ 只有 `isPoliceEvidence = true` 才触发公告栏更新
             {
                 Debug.Log($"⚠️ 证据 {item.itemID} 被销毁，影响公告栏");
-                noticeBoardManager.DestroyEvidence(item.itemID);
+
+                if (noticeBoardManager != null)
+                {
+                    // ✅ **确保 `itemID` 对应 `公告栏上的天数`**
+                    if (noticeBoardManager.dayToNoticeIndex.ContainsKey(item.itemID))
+                    {
+                        noticeBoardManager.DestroyEvidence(item.itemID);
+                        Debug.Log($"✅ 公告栏已更新，证据 {item.itemID} 变成问号");
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"⚠️ 证据 {item.itemID} 没有在公告栏上显示，不更新 UI");
+                    }
+                }
             }
             else
             {

@@ -39,20 +39,20 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentTime += Time.deltaTime;
         //Debug.Log("currentTime: " + currentTime);
 
-        if (currentTime < 150f)  // 2.30分钟 = 白天
+        if (currentTime < 80f)  // 2.30分钟 = 白天
         {
             RenderSettings.skybox = daySkybox;
             sunLight.intensity = 1.0f;
         }
 
-        else if (currentTime >= 120f && currentTime < 150f)
+        else if (currentTime >= 80f && currentTime < 130f)
         {
-            float blendFactor = (currentTime - 120f) / 30f;
+            float blendFactor = (currentTime - 80f) / 50f;
             sunLight.intensity = Mathf.Lerp(1.0f, 0f, blendFactor);
             RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, 0.3f, blendFactor);
         }
 
-        else if (currentTime >= 150f && !isNightSequenceStarted)
+        else if (currentTime >= 130f && !isNightSequenceStarted)
         {
             StartCoroutine(NightSequence());
             isNightSequenceStarted = true;

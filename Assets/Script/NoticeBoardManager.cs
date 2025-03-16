@@ -27,6 +27,13 @@ public class NoticeBoardManager : MonoBehaviour
     private HashSet<int> destroyedEvidences = new HashSet<int>(); // 存储已销毁的证据
     private SkyAndTimeSystem skySystem; // 引用 `SkyAndTimeSystem`
 
+    public Dictionary<int, int> dayToNoticeIndex = new Dictionary<int, int>
+{
+    { 1, 0 }, // Day 2 对应 `dayNotices[0]`
+    { 3, 1 }, // Day 4 对应 `dayNotices[1]`
+    { 4, 2 }  // Day 5 对应 `dayNotices[2]`
+};
+
     private void Start()
     {
         skySystem = FindObjectOfType<SkyAndTimeSystem>(); // 自动获取 `SkyAndTimeSystem`
@@ -40,30 +47,36 @@ public class NoticeBoardManager : MonoBehaviour
         noticeBoardPanel.SetActive(false); // 开始时隐藏公告栏
         closeButton.gameObject.SetActive(false);
 
-        // ✅ 只显示 `Day1`，隐藏 `Day2 ~ Day6`
+        // ✅ **隐藏所有公告**
         for (int i = 0; i < dayNotices.Length; i++)
         {
-            if (i == 0)
-            {
-                dayNotices[i].SetActive(true); // 显示第一天
-            }
-            else
-            {
-                dayNotices[i].SetActive(false); // 隐藏 Day2 ~ Day6
-            }
+            dayNotices[i].SetActive(false); // **隐藏所有天数的公告**
         }
+
+        Debug.Log("✅ 所有公告已隐藏！");
 
         UpdateNoticeBoard(); // 初始化公告栏
     }
 
     // **玩家销毁证据**
+    // **改成使用 itemID**
     public void DestroyEvidence(int evidenceIndex)
     {
-        if (evidenceIndex >= 0 && evidenceIndex < evidenceSprites.Length)
+        Debug.Log($"⚠️ 证据 {evidenceIndex} 被销毁，影响公告栏");
+
+        if (dayToNoticeIndex.ContainsKey(evidenceIndex))
         {
-            destroyedEvidences.Add(evidenceIndex);
-            evidenceImages[evidenceIndex].sprite = questionMarkSprite; // **变成 `?`**
-            Debug.Log($"证据 {evidenceIndex + 1} 被销毁！");
+            int noticeIndex = dayToNoticeIndex[evidenceIndex]; // 找到公告栏上的索引
+
+            if (noticeIndex >= 0 && noticeIndex < evidenceImages.Length)
+            {
+                evidenceImages[noticeIndex].sprite = questionMarkSprite; // ✅ 显示 `?`
+                Debug.Log($"✅ 公告栏已更新，证据 {evidenceIndex} 变成问号！");
+            }
+            else
+            {
+                Debug.LogWarning($"⚠️ 证据 {evidenceIndex} 没有找到对应的 `evidenceImages` 索引！");
+            }
         }
     }
 
@@ -79,43 +92,56 @@ public class NoticeBoardManager : MonoBehaviour
         Debug.Log("公告栏 " + (isActive ? "关闭" : "打开"));
     }
 
-    // **每天更新公告栏（由 `SkyAndTimeSystem` 触发）**
     public void UpdateNoticeBoard()
     {
-        int currentDay = skySystem.currentDay; // 获取当前天数
-        Debug.Log($"公告栏更新：今天是第 {currentDay + 1} 天");
+        int currentDay = skySystem.currentDay;
+        Debug.Log($"📢 公告栏更新：今天是第 {currentDay + 1} 天");
 
-        // **遍历所有公告栏 Image**
-        for (int i = 0; i < dayNotices.Length; i++)
+        // ✅ 遍历所有过去的天数，确保所有已解锁的公告都显示
+        for (int day = 0; day <= currentDay; day++)
         {
-            // ✅ **只有第 `2`、`4`、`5` 天显示公告（索引 `1, 3, 4`）**
-            if (i == 1 || i == 3 || i == 4) // Day 2、Day 4、Day 5
+            if (dayToNoticeIndex.ContainsKey(day))
             {
-                if (i <= currentDay) // 只有到这天及以后才会显示
-                {
-                    dayNotices[i].gameObject.SetActive(true); // ✅ 显示该天的公告
+                int noticeIndex = dayToNoticeIndex[day]; // 获取 `dayNotices` 的索引
 
-                    if (destroyedEvidences.Contains(i))
+                // ✅ 确保索引有效，防止数组越界
+                if (noticeIndex >= 0 && noticeIndex < dayNotices.Length)
+                {
+                    dayNotices[noticeIndex].SetActive(true); // ✅ 显示该天的公告
+                    Debug.Log($"📢 显示公告：Day {day + 1} -> Notice {noticeIndex}");
+
+                    // ✅ **检查该天的证据是否被销毁**
+                    if (destroyedEvidences.Contains(day))
                     {
-                        evidenceImages[i].sprite = questionMarkSprite; // **证据销毁 → 显示 `?`**
+                        if (noticeIndex < evidenceImages.Length)
+                        {
+                            evidenceImages[noticeIndex].sprite = questionMarkSprite; // ✅ 证据销毁 → `?`
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"⚠️ 证据 {day + 1} 没有找到对应的 `evidenceImages` 索引！");
+                        }
                     }
                     else
                     {
-                        evidenceImages[i].sprite = evidenceSprites[i]; // **证据未销毁 → 显示正常证据**
+                        if (noticeIndex < evidenceSprites.Length)
+                        {
+                            evidenceImages[noticeIndex].sprite = evidenceSprites[noticeIndex]; // **未销毁 → 正常证据**
+                        }
+                        else
+                        {
+                            Debug.LogWarning($"⚠️ `evidenceSprites` 索引超出范围！");
+                        }
                     }
                 }
             }
-            else
-            {
-                dayNotices[i].gameObject.SetActive(false); // ✅ 其他天不公布线索
-            }
         }
-    
+
         // ✅ **更新 Map Image**
         if (mapImage != null && mapSprites.Length > currentDay)
         {
-            mapImage.sprite = mapSprites[currentDay]; // **每天更换地图**
-            Debug.Log($"地图已更新：Day {currentDay + 1}");
+            mapImage.sprite = mapSprites[currentDay];
+            Debug.Log($"🗺️ 地图已更新：Day {currentDay + 1}");
         }
         else
         {
