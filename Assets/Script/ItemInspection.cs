@@ -139,19 +139,29 @@ public class ItemInspection : MonoBehaviour
     {
         Debug.Log("面板关闭");
         isInspecting = false; // **先设置 isInspecting，确保 UI 逻辑正确**
+
         // 隐藏检视窗口
         inspectionPanel.SetActive(false);
         itemCamera.gameObject.SetActive(false);
 
-        // 重新显示 UI
+        // ✅ 重新显示 UI
         backpackIcon.SetActive(true);
         inspectionIcon.SetActive(true);
         interactionIcon.SetActive(true);
 
-        // ✅ 让背包图标闪烁
-        FindObjectOfType<BackpackIconBlink>().StartBlinking();
+        // ✅ **销毁 `inspectedModel`**
+        if (inspectedModel != null)
+        {
+            Debug.Log("销毁检视模型: " + inspectedModel.name);
+            Destroy(inspectedModel);
+            inspectedModel = null; // **防止引用残留**
+        }
+        else
+        {
+            Debug.LogWarning("❌ 没有需要销毁的 `inspectedModel`");
+        }
 
-        // 销毁复制的模型
+        // ✅ **恢复物品交互状态**
         if (currentItemModel != null)
         {
             Item item = currentItemModel.GetComponent<Item>();
@@ -159,15 +169,23 @@ public class ItemInspection : MonoBehaviour
             {
                 int itemID = item.itemID;
 
-                // ✅ **只有当 itemID 在 BackPackManager 里时，才播放音效 & 背包动画**
+                // ✅ **确保 `isPickedUp` 没有被错误修改**
+                item.isPickedUp = false;
+                Debug.Log($"🔄 物品 {item.itemName} 仍然可拾取 isPickedUp: {item.isPickedUp}");
+
+                // ✅ **确保 `Collider` 仍然启用**
+                Collider itemCollider = item.GetComponent<Collider>();
+                if (itemCollider != null && !itemCollider.enabled)
+                {
+                    itemCollider.enabled = true;
+                    Debug.Log($"✅ `Collider` 已重新启用: {item.itemName}");
+                }
+
+                // **只有收集到的物品才播放音效 & 背包动画**
                 if (BackPackManager.Instance != null && BackPackManager.Instance.IsCollectedItem(itemID))
                 {
                     Debug.Log($"🎯 物品 {itemID} 在背包中，播放解锁音效 & 背包动画！");
 
-                    // ✅ 播放解锁音效
-                    BackPackManager.Instance.PlayUnlockSound();
-
-                    // ✅ 让背包图标闪烁
                     BackpackIconBlink blinkScript = backpackIcon.GetComponent<BackpackIconBlink>();
                     if (blinkScript != null)
                     {
@@ -179,12 +197,13 @@ public class ItemInspection : MonoBehaviour
                     Debug.Log($"🚫 物品 {itemID} 不在背包中，不触发音效 & 背包动画");
                 }
 
-                // ✅ 取消选中 & 恢复高亮状态
+                // ✅ **取消选中 & 恢复高亮状态**
                 item.Deselect();
                 item.UpdateHighlightState();
             }
         }
     }
+
     // 旋转物品模型
     private void RotateItemModel()
     {
