@@ -20,6 +20,10 @@ public class NoticeBoardManager : MonoBehaviour
     public Sprite[] evidenceSprites; // 存储所有证据图片（按顺序）
     public Sprite questionMarkSprite; // "?" 的 Sprite（如果证据被销毁）
 
+    [Header("公告栏日历 UI")]
+    public Image calendarImage; // 📅 公告栏的日历 `Image`
+    public Sprite[] calendarSprites; // 📅 每天对应的 `Calendar Sprite`
+
     [Header("地图 UI")]
     public Image mapImage; // ✅ 地图的 `Image` 组件
     public Sprite[] mapSprites; // ✅ 每天对应的 `Map Sprite`（长度应该是 6）
@@ -135,6 +139,16 @@ public class NoticeBoardManager : MonoBehaviour
                     }
                 }
             }
+        }
+        // ✅ **更新公告栏的日历**
+        if (calendarImage != null && calendarSprites.Length > currentDay)
+        {
+            calendarImage.sprite = calendarSprites[currentDay]; // **每天更换日历**
+            Debug.Log($"📅 公告栏日历更新：Day {currentDay + 1}");
+        }
+        else
+        {
+            Debug.LogWarning("❌ `calendarImage` 为空 或 `calendarSprites` 数组长度不足！");
         }
 
         // ✅ **更新 Map Image**
