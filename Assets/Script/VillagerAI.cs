@@ -10,6 +10,7 @@ public class VillagerAI : MonoBehaviour
     public float maxIdleTime = 3f; // ✅ 最长停留时间
     public float changeDirectionInterval = 3f; // ✅ 每 3 秒随机换方向
     public float raycastDistance = 1f; // ✅ 用于检测障碍物的射线长度
+    public float rotationSpeed = 5f; // ✅ 旋转速度（越大转向越快）
 
     private Vector3 moveDirection; // ✅ 村民当前的移动方向
     private Rigidbody rb; // ✅ 村民的刚体组件
@@ -34,6 +35,7 @@ public class VillagerAI : MonoBehaviour
         if (!IsPathBlocked())
         {
             rb.MovePosition(rb.position + moveDirection * moveSpeed * Time.fixedDeltaTime);
+            UpdateRotation(); // ✅ 确保村民朝向移动方向
         }
         else
         {
@@ -63,8 +65,6 @@ public class VillagerAI : MonoBehaviour
         moveDirection = Random.insideUnitSphere; // ✅ 生成一个随机方向
         moveDirection.y = 0f; // ✅ 让村民不往上飞，只在地面移动
         moveDirection.Normalize(); // ✅ 保持方向一致
-
-        Debug.Log("🧑‍🌾 村民更换方向：" + moveDirection);
     }
 
     private bool IsPathBlocked()
@@ -72,19 +72,31 @@ public class VillagerAI : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(transform.position, moveDirection, out hit, raycastDistance))
         {
-            // ✅ **如果 `hit` 物体的 `Tag` 不是 `Villager`，就换方向**
             if (hit.collider.CompareTag("Villager") == false)
             {
-                Debug.Log("🚧 村民撞到障碍物，更换方向");
                 return true;
             }
         }
         return false;
     }
 
+    private void UpdateRotation()
+    {
+        if (moveDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(moveDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawRay(transform.position, moveDirection * raycastDistance); // ✅ 画出射线检测
+    }
+
+    public bool IsWalking()
+    {
+        return isWalking;
     }
 }
