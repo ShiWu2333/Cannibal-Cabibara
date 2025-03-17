@@ -39,20 +39,20 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentTime += Time.deltaTime;
         //Debug.Log("currentTime: " + currentTime);
 
-        if (currentTime < 80f)  // 2.30分钟 = 白天
+        if (currentTime < 20f)  // 2.30分钟 = 白天
         {
             RenderSettings.skybox = daySkybox;
             sunLight.intensity = 1.0f;
         }
 
-        else if (currentTime >= 80f && currentTime < 130f)
+        else if (currentTime >= 20f && currentTime < 30f)
         {
-            float blendFactor = (currentTime - 80f) / 50f;
+            float blendFactor = (currentTime - 20f) / 10f;
             sunLight.intensity = Mathf.Lerp(1.0f, 0f, blendFactor);
             RenderSettings.ambientIntensity = Mathf.Lerp(RenderSettings.ambientIntensity, 0.3f, blendFactor);
         }
 
-        else if (currentTime >= 130f && !isNightSequenceStarted)
+        else if (currentTime >= 30f && !isNightSequenceStarted)
         {
             StartCoroutine(NightSequence());
             isNightSequenceStarted = true;
@@ -102,15 +102,15 @@ public class SkyAndTimeSystem : MonoBehaviour
         currentDay++;
 
         // 如果是第 7 天（索引 6），根据数值触发结局（还未设定）
-        if (currentDay == 5)
+        if (currentDay == 6)
         {
            GameEndingManager gameEndingManager = FindObjectOfType<GameEndingManager>();
         if (gameEndingManager != null)
         {
             gameEndingManager.TriggerGameEnding();
         }
-       
-    }
+           
+        }
         else
         {
             Debug.Log(" 新的一天开始！");
@@ -126,6 +126,9 @@ public class SkyAndTimeSystem : MonoBehaviour
     IEnumerator ShowCalendar()
     {
         yield return new WaitForSeconds(3f); // 等待 3 秒后显示日历
+
+                                             // 限制索引，避免超出数组范围
+        
 
         // ✅ 显示 `calendarImageNormal`（当天无划线的日历）
         calendarImage.sprite = calendarSpritesNormal[currentDay];

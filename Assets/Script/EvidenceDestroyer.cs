@@ -17,10 +17,14 @@ public class EvidenceDestroyer : MonoBehaviour
         {
             Debug.Log($"物品 {item.itemName} 被丢入 {gameObject.name}，正在销毁...");
 
-            // **✅ 只有 `公告栏的证据` 被销毁，才影响公告**
             if (item.isPoliceEvidence)
             {
-                noticeBoardManager.DestroyEvidence(item.itemID);
+                noticeBoardManager.DestroyEvidence(item.itemID); // ✅ 通知公告栏
+                GameEndingManager endingManager = FindObjectOfType<GameEndingManager>();
+                if (endingManager != null)
+                {
+                    endingManager.RecordDestroyedEvidence(item.itemID); // ✅ 现在 GameEndingManager 知道证据被销毁了
+                }
             }
 
             Destroy(item.gameObject); // ✅ 物品消失
