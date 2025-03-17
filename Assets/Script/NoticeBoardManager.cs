@@ -96,7 +96,7 @@ public class NoticeBoardManager : MonoBehaviour
     public void UpdateNoticeBoard()
     {
         int currentDay = skySystem.currentDay;
-        Debug.Log($"📢 公告栏更新：今天是第 {currentDay} 天");
+        Debug.Log($"📢 公告栏更新：今天是第 {currentDay + 1} 天");
 
         // ✅ **遍历 `dayNotices`（公告栏总共 3 个线索）**
         for (int i = 0; i < dayNotices.Length; i++)
@@ -123,7 +123,7 @@ public class NoticeBoardManager : MonoBehaviour
         if (calendarImage != null && calendarSprites.Length > currentDay)
         {
             calendarImage.sprite = calendarSprites[currentDay]; // **每天更换日历**
-            Debug.Log($"📅 公告栏日历更新：Day {currentDay }");
+            Debug.Log($"📅 公告栏日历更新：Day {currentDay + 1 }");
         }
         else
         {
@@ -134,7 +134,7 @@ public class NoticeBoardManager : MonoBehaviour
         if (mapImage != null && mapSprites.Length > currentDay)
         {
             mapImage.sprite = mapSprites[currentDay]; // **每天更换地图**
-            Debug.Log($"🗺️ 地图已更新：Day {currentDay}");
+            Debug.Log($"🗺️ 地图已更新：Day {currentDay + 1}");
         }
     }
 }
